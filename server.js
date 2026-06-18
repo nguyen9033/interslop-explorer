@@ -33,8 +33,37 @@ const PROVIDERS = {
 
 const PORT = env.PORT || 3000;
 
+const rateLimit = {};
+const RATE_WINDOW = 60000;
+const RATE_MAX = 15;
+const DAILY_MAX = 500;
+let dailyCount = 0;
+let dailyReset = Date.now() + 86400000;
+
+function getIP(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress;
+}
+
+function checkRate(ip) {
+  const now = Date.now();
+  if (now > dailyReset) { dailyCount = 0; dailyReset = now + 86400000; }
+  if (dailyCount >= DAILY_MAX) return false;
+  if (!rateLimit[ip]) rateLimit[ip] = [];
+  rateLimit[ip] = rateLimit[ip].filter(t => now - t < RATE_WINDOW);
+  if (rateLimit[ip].length >= RATE_MAX) return false;
+  rateLimit[ip].push(now);
+  dailyCount++;
+  return true;
+}
+
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/api/chat') {
+    const ip = getIP(req);
+    if (!checkRate(ip)) {
+      res.writeHead(429, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Rate limit exceeded. Try again in a minute.' }));
+      return;
+    }
     let body = '';
     req.on('data', c => body += c);
     req.on('end', () => {
