@@ -607,7 +607,7 @@ async function handleInteraction(elementId, action) {
 
   abortController = new AbortController();
   try {
-    const response = await streamChat(messages, abortController.signal, null, 'cerebras');
+    const response = await streamChat(messages, abortController.signal, null, 'deepseek');
     applyDelta(response);
     page.html = getCurrentHtml();
     setStatus('Done');
