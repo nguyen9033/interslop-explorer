@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Interdimensional Explorer</title>
 <link rel="stylesheet" href="https://unpkg.com/98.css">
 <style>
@@ -74,6 +75,52 @@
     background: linear-gradient(180deg, #d4f0a0 0%, #b8d880 100%);
   }
   .status-bar-field { font-size: 11px; }
+
+  #author-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 8px;
+    background: linear-gradient(180deg, #3a5c14 0%, #2a4410 100%);
+    border-bottom: 1px solid #1a3008;
+    font-size: 10px;
+    color: #c1f762;
+  }
+  #author-bar span { opacity: 0.9; }
+  #author-bar .contact-links { display: flex; gap: 8px; }
+  #author-bar a {
+    color: #fff;
+    text-decoration: none;
+    background: rgba(255,255,255,0.12);
+    padding: 1px 8px;
+    border-radius: 2px;
+    font-size: 10px;
+    transition: background 0.2s;
+  }
+  #author-bar a:hover { background: rgba(255,255,255,0.25); }
+
+  @media (max-width: 600px) {
+    .title-bar-text { font-size: 11px; }
+    .title-bar-controls { display: none; }
+
+    #author-bar { flex-wrap: wrap; gap: 2px; padding: 3px 6px; justify-content: center; text-align: center; }
+    #author-bar span { width: 100%; }
+    #author-bar .contact-links { gap: 12px; }
+    #author-bar a { padding: 3px 12px; }
+
+    #toolbar { flex-wrap: wrap; gap: 2px; padding: 3px 4px; }
+    #toolbar button { min-width: 40px; font-size: 10px; padding: 4px 6px; flex: 1; }
+    #dimension-label { order: -1; width: 100%; text-align: center; margin-bottom: 2px; }
+
+    #address-row { padding: 3px 4px; }
+    #address-row label { display: none; }
+    #url-input { font-size: 16px; padding: 6px 4px; }
+    #address-row button { padding: 6px 12px; }
+
+    #page-frame { -webkit-overflow-scrolling: touch; }
+
+    .status-bar-field { font-size: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -84,6 +131,14 @@
       <button aria-label="Minimize"></button>
       <button aria-label="Maximize"></button>
       <button aria-label="Close"></button>
+    </div>
+  </div>
+
+  <div id="author-bar">
+    <span>Made with love by: Andrew Nguyen & Claudie &lt;3</span>
+    <div class="contact-links">
+      <a href="mailto:andrew1000n@gmail.com" target="_blank">Email</a>
+      <a href="https://www.linkedin.com/in/andrew-bryce-nguyen/" target="_blank">LinkedIn</a>
     </div>
   </div>
 
@@ -166,6 +221,37 @@ Vary seeds/IDs/text per image. Use inline SVG for logos/icons. Use emoji creativ
 
 For JSON diffs, target the most deeply nested changed element. Use flex (flex:1) to fill space, never height:100%.`;
 
+const MOBILE_PROMPT_ADDENDUM = `
+
+MOBILE DEVICE DETECTED — the user is browsing on a small touchscreen. Adapt ALL generated content:
+
+LAYOUT:
+- Single column only. No sidebars, no multi-column grids. Stack everything vertically.
+- Full-width elements. No tiny text or cramped layouts.
+- Minimum font-size: 14px for body text, 18px+ for headings.
+- Generous padding (12px+) and spacing between sections.
+- No horizontal scrolling — everything must fit within ~380px width.
+
+TOUCH TARGETS:
+- All buttons, links, and clickable elements must be at least 44px tall with 8px+ gaps between them.
+- No hover-dependent interactions — everything must work on tap.
+- Navigation items should be large, stacked, or in a hamburger-style list.
+
+IMAGES:
+- Use smaller image dimensions (max 350px wide) to load faster on mobile data.
+- Stack images vertically, never side by side.
+
+CONTENT:
+- Prioritize key content. Cut the fluff — mobile users scroll, not scan.
+- Forms should have large inputs (font-size:16px minimum to prevent iOS zoom).
+- Use collapsible sections where appropriate to reduce scroll length.
+
+The alien design rules still apply — just make them work on a phone. A spiral layout can spiral vertically. A hexagonal grid can be a single column of hexagons.`;
+
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  || (window.matchMedia && window.matchMedia('(max-width: 600px)').matches)
+  || ('ontouchstart' in window);
+
 const DIMENSIONS = [
   'C-137', 'C-500A', 'J-19-Zeta-7', 'Dimension 35-C', 'C-132',
   'D-716', 'Dimension 304-X', 'C-1998', 'Post-Apocalyptic Dimension',
@@ -194,8 +280,9 @@ function getCurrentHtml() {
 }
 
 function buildMessages(userMsg) {
+  const prompt = isMobile ? SYSTEM_PROMPT + MOBILE_PROMPT_ADDENDUM : SYSTEM_PROMPT;
   return [
-    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'system', content: prompt },
     { role: 'user', content: userMsg },
   ];
 }
@@ -265,9 +352,13 @@ async function streamChat(messages, signal, onChunk, provider = 'deepseek') {
 }
 
 function renderPage(html) {
+  const bodyStyle = isMobile
+    ? 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:14px}*{-webkit-tap-highlight-color:rgba(0,0,0,0.1)}img{max-width:100%;height:auto}'
+    : 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:11px}';
   const wrapped = `<!DOCTYPE html><html><head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="https://unpkg.com/98.css">
-    <style>body{margin:8px;font-family:Tahoma,sans-serif;font-size:11px}</style>
+    <style>${bodyStyle}</style>
     </head><body>${html}</body></html>`;
   iframe.srcdoc = wrapped;
   iframe.onload = () => attachListeners();
@@ -376,7 +467,10 @@ async function navigate(url) {
 
   const doc = iframe.contentDocument;
   doc.open();
-  doc.write('<!DOCTYPE html><html><head><link rel="stylesheet" href="https://unpkg.com/98.css"><style>body{margin:8px;font-family:Tahoma,sans-serif;font-size:11px}</style></head><body>');
+  const bodyStyle = isMobile
+    ? 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:14px}*{-webkit-tap-highlight-color:rgba(0,0,0,0.1)}img{max-width:100%;height:auto}'
+    : 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:11px}';
+  doc.write(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://unpkg.com/98.css"><style>${bodyStyle}</style></head><body>`);
 
   abortController = new AbortController();
   try {
