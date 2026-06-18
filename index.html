@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Interdimensional Explorer</title>
-<link rel="stylesheet" href="https://unpkg.com/98.css">
+<link rel="stylesheet" href="https://unpkg.com/xp.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@700;800&display=swap">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; overflow: hidden; font-size: 11px; }
+  html, body { height: 100%; overflow: hidden; }
 
   #shell {
     display: flex;
@@ -17,42 +18,41 @@
     width: 100vw;
   }
 
-  .title-bar {
-    flex-shrink: 0;
-    background: linear-gradient(180deg, #97ce4c 0%, #4a7a1a 100%);
+  .window {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: 0;
+    margin: 0;
   }
-  .title-bar-text { color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
-
 
   #address-row {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 2px 4px;
-    border-bottom: 1px solid #4a7a1a;
-    background: linear-gradient(180deg, #d4f0a0 0%, #b8d880 100%);
+    padding: 3px 6px;
+    background: linear-gradient(to bottom, #f2f6fc, #e1e6f0, #d6dce8);
+    border-bottom: 1px solid #a4aeb8;
+    border-top: 1px solid #fff;
+    flex-shrink: 0;
   }
-  #address-row label { white-space: nowrap; font-size: 11px; font-weight: bold; }
-  #url-input { flex: 1; font-size: 12px; }
-  #dimension-label {
-    font-size: 10px;
-    font-weight: bold;
-    color: #1a4a00;
-    background: #c1f762;
-    padding: 1px 6px;
-    border: 1px solid #4a7a1a;
-    border-radius: 2px;
-    white-space: nowrap;
+  #address-row label { white-space: nowrap; font-size: 11px; font-weight: bold; color: #333; }
+  #address-row button {
+    padding: 3px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    min-width: 30px;
+    text-align: center;
   }
+  #url-input { flex: 1; font-size: 12px; padding: 3px 6px; }
 
   #content-area { flex: 1; display: flex; position: relative; overflow: hidden; }
   #page-frame { flex: 1; border: none; background: white; }
-  #page-frame.loading { pointer-events: none; }
 
   #loading-bar {
-    position: absolute; top: 0; left: 0; height: 4px;
-    background: linear-gradient(90deg, #ff6b00, #ffcc00, #ff6b00);
-    box-shadow: 0 0 8px rgba(255,107,0,0.6);
+    position: absolute; top: 0; left: 0; height: 3px;
+    background: linear-gradient(90deg, #28b528, #7bea7b, #28b528);
+    box-shadow: 0 0 6px rgba(40,181,40,0.5);
     width: 0;
     transition: width 0.3s ease;
     z-index: 10;
@@ -64,251 +64,124 @@
     100% { opacity: 1; }
   }
 
-
-  .status-bar {
-    flex-shrink: 0;
-    background: linear-gradient(180deg, #d4f0a0 0%, #b8d880 100%);
-  }
-  .status-bar-field { font-size: 11px; }
-
-
-  #mobile-dimension { display: none; }
+  .status-bar { flex-shrink: 0; }
+  #author-credit { font-size: 11px; color: #666; white-space: nowrap; }
+  #author-credit a { color: #0066cc; text-decoration: none; }
+  #author-credit a:hover { text-decoration: underline; }
 
   @media (max-width: 768px) {
-    .title-bar { display: none !important; }
-
-    #address-row {
-      padding: 4px 6px;
-      gap: 4px;
-      background: linear-gradient(180deg, #3a5c14 0%, #2a4410 100%);
-      border-bottom: 2px solid #88e23b;
-    }
+    .title-bar-controls { display: none; }
+    .title-bar-text { font-size: 12px; }
     #address-row label { display: none; }
-    #url-input { font-size: 16px; padding: 6px 8px; border-radius: 4px; }
-    #address-row button { padding: 6px 12px; font-size: 12px; }
-    #dimension-label { display: none; }
-    #mobile-dimension { display: none; }
-
+    #address-row button { padding: 5px 10px; font-size: 13px; min-width: 34px; }
+    #url-input { font-size: 16px; padding: 5px 8px; }
     #page-frame { -webkit-overflow-scrolling: touch; }
-
     .status-bar { display: none !important; }
+    #title-credit { display: none !important; }
   }
 </style>
 </head>
 <body>
 <div id="shell">
-  <div class="title-bar" style="position:relative">
-    <div class="title-bar-text" id="title-text">Interdimensional Explorer — Dimension C-137</div>
-    <span id="author-credit" style="position:absolute;left:50%;transform:translateX(-50%);font-size:11px;color:#fff;white-space:nowrap;text-shadow:1px 1px 3px rgba(0,0,0,0.5)">Made with love by: Andrew Nguyen & Claude · <a href="mailto:andrew1000n@gmail.com" style="color:#fff;text-decoration:underline">Email</a> · <a href="https://www.linkedin.com/in/andrew-bryce-nguyen/" style="color:#fff;text-decoration:underline">LinkedIn</a> · <a href="https://x.com/TechBurner88888" style="color:#fff;text-decoration:underline">X</a></span>
-    <div class="title-bar-controls">
-      <button aria-label="Minimize"></button>
-      <button aria-label="Maximize"></button>
-      <button aria-label="Close"></button>
+  <div class="window" style="display:flex;flex-direction:column;height:100%;border-radius:0;margin:0">
+    <div class="title-bar" style="position:relative">
+      <div class="title-bar-text" id="title-text">Interdimensional Explorer</div>
+      <div id="title-credit" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:10px;color:rgba(255,255,255,0.85);white-space:nowrap;pointer-events:auto">
+        Made with love by: Andrew Nguyen & Claude · <a href="mailto:andrew1000n@gmail.com" style="color:rgba(255,255,255,0.9);text-decoration:none">Email</a> · <a href="https://www.linkedin.com/in/andrew-bryce-nguyen/" style="color:rgba(255,255,255,0.9);text-decoration:none">LinkedIn</a> · <a href="https://x.com/TechBurner88888" style="color:rgba(255,255,255,0.9);text-decoration:none">X</a>
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close"></button>
+      </div>
+    </div>
+
+    <div id="address-row">
+      <button onclick="goBack()" title="Back">◄</button>
+      <button onclick="goHome()" title="Home">🏠</button>
+      <label>Address</label>
+      <div style="flex:1;position:relative;display:flex;align-items:center">
+        <input type="text" id="url-input" value="http://www.interdimensional-net.com"
+               onkeydown="if(event.key==='Enter'){navigate(this.value)}" style="width:100%;padding-right:22px">
+        <span id="url-clear" onclick="document.getElementById('url-input').value='';document.getElementById('url-input').focus()" style="position:absolute;right:4px;cursor:pointer;color:#999;font-size:12px;line-height:1;user-select:none">✕</span>
+      </div>
+    </div>
+
+    <div id="content-area">
+      <div id="loading-bar"></div>
+      <iframe id="page-frame"></iframe>
+    </div>
+
+    <div class="status-bar" style="display:flex;justify-content:space-between;align-items:center">
+      <p class="status-bar-field" id="status-text" style="flex:1">Ready</p>
+      <p class="status-bar-field" id="author-credit">Made with love by: Andrew Nguyen & Claude · <a href="mailto:andrew1000n@gmail.com">Email</a> · <a href="https://www.linkedin.com/in/andrew-bryce-nguyen/">LinkedIn</a> · <a href="https://x.com/TechBurner88888">X</a></p>
     </div>
   </div>
-
-  <span id="dimension-label" style="display:none">C-137</span>
-
-  <div id="address-row">
-    <button id="back-btn" onclick="goBack()" aria-label="Back" style="padding:2px 6px;font-size:14px;min-width:28px;line-height:1;cursor:pointer">←</button>
-    <button id="home-btn" onclick="goHome()" aria-label="Home" style="padding:2px 6px;font-size:12px;min-width:28px;line-height:1;cursor:pointer">⌂</button>
-    <label>Address</label>
-    <div style="flex:1;position:relative;display:flex;align-items:center">
-      <input type="text" id="url-input" value="http://www.interdimensional-net.com"
-             onkeydown="if(event.key==='Enter'){navigate(this.value)}" style="width:100%;padding-right:24px">
-      <span id="url-clear" onclick="document.getElementById('url-input').value='';document.getElementById('url-input').focus()" style="position:absolute;right:6px;cursor:pointer;color:#999;font-size:14px;line-height:1;user-select:none">✕</span>
-    </div>
-  </div>
-
-  <div id="content-area">
-    <div id="loading-bar"></div>
-    <iframe id="page-frame"></iframe>
-  </div>
-
-  <div class="status-bar">
-    <p class="status-bar-field" id="status-text">Ready — connected to the Interdimensional Net</p>
-  </div>
-
 </div>
 
 <script>
-const SYSTEM_PROMPT = `You generate web pages for the Interdimensional Net — the internet as it exists across alternate dimensions. Each page is from a different dimension with its own physics, culture, biology, and aesthetics. The browser chrome is already provided — generate ONLY the page body content.
+const SYSTEM_PROMPT = `You generate web pages from a parallel alien internet. Output ONLY raw HTML body content. No code fences.
 
-TECHNICAL RULES:
-- Output raw HTML only. No code fences, no explanation, no commentary.
-- Use inline styles freely. Override 98.css (which is pre-loaded) whenever the dimension demands it.
-- No <script> tags.
-- Every clickable/interactive element MUST have a unique descriptive ID.
-- Use real form elements: input, textarea, select, button. Make them functional — dropdowns with weird options, text fields that invite input, checkboxes for absurd preferences.
+This is a real website that is almost exactly like our world. Almost. Maybe one thing is different — a unit of measurement, a social norm, what a common word means, how a body part works, what day of the week it is, what gravity does. Maybe a few things. It varies. The site itself is completely normal and professional. The differences are never acknowledged or explained — they're woven into the details like they've always been there. You have to actually read to catch them.
 
-RESPONSE FORMAT:
-- Full page navigation → full HTML body
-- Small interaction (button, toggle, form) → JSON diff: [{"id":"el-id","html":"<new outerHTML>"}]
-- Navigation-like click (section link, major nav) → full replacement HTML
-- When in doubt, lean toward full HTML — richer is better.
+Build it like a real alien web developer who's proud of their work. Specific names, real-feeling brands, actual prices, genuine reviews. Everything is earnest. Nothing is parody.
 
-THE INTERDIMENSIONAL NET:
-You are not making parodies. You are generating REAL websites from REAL alternate dimensions. Commit to the bit completely. The dimension name tells you the vibe — lean into it hard.
+The tone is deadpan. The layout is professional. The details reward close reading. The reader should be halfway through before something makes them chuckle, then go back and reread. The humor is dry, oblique, and buried with slight innuendo — the kind that gets funnier the more you think about it. Situations should be 70% grounded in our world and 30% in bizarrely funny unscripted riffing from a dimension different from our own.
 
-Every dimension has different:
-- BIOLOGY: How many limbs? Do they have eyes? Are they gaseous? Silicon-based? A hivemind? This affects EVERYTHING — UI controls, product categories, social norms, what counts as food/entertainment/work.
-- PHYSICS: Does gravity work? Is time linear? Do colors exist the same way? This affects layout direction, visual weight, how "up" and "down" feel on a page.
-- CULTURE: What's taboo? What's sacred? What's their humor? What do they argue about online? What's their equivalent of memes?
-- TECHNOLOGY: Are they more advanced? Less? Do they have screens or something else? Web design might be ahead of or behind ours in weird ways.
+Raw Improv: The voice actors riffed and stumbled over their lines, leaving genuine laugh-breaks and awkward pauses in the final cut. It feels like a group of friends joking around on a couch rather than a meticulously scripted cartoon.
+Visual Absurdity: The animators were given total freedom to bring these nonsensical pitches to life. The mismatch between the bizarre voice acting and wildly imaginative visuals creates a surreal comedic contrast. 
+Mundane Tropes Turned Sci-Fi: The bits parody standard television formats (like commercials, movie trailers, or sitcoms) but twist them into bizarre, existential, or mildly disturbing variations.
 
-NEVER explain the weirdness. Present it as completely normal. A three-armed being doesn't comment on having three arms — they just have a "third armpit deodorant" section in their shopping cart.
+IMPORTANT: DEPTH — THIS IS A RABBIT HOLE:
+Every page is a branching tree. Pack it with real-feeling <a href="http://..."> links: nav menus with 5+ items, sidebar links, footer links, "related" sections, usernames that link to profiles, product categories, comment threads, "See more" links, ad banners, breadcrumbs, popups that lead to different websites. Each href should be a plausible URL. The user must ALWAYS have somewhere deeper to click. Think about how real websites work — every page has dozens of paths forward.
 
-JUXTAPOSITION & SURPRISE — THE SECRET SAUCE:
-The best interdimensional pages have moments that make you do a double-take. Randomly inject elements that DON'T belong:
-- A corporate banking site with a tiny "feed the void" button in the corner that's clearly important to them
-- A food delivery app where one menu item is just a photograph of silence, priced at 4,000 screams
-- A professional LinkedIn-equivalent where someone's job title is "Senior Vice President of Forgetting"
-- An urgent government warning banner across an otherwise mundane gardening forum
-- A perfectly normal product review that casually mentions the reviewer has been dead for 30 years
-- A weather widget showing "partly theoretical" or "98% chance of yesterday"
-- A popup ad that's genuinely beautiful and poetic, selling nothing
-- A loading bar that's at 847%
-- A "Terms of Service" link where the text is just one word: "no"
-- A user's profile picture that's clearly a photo of a concept, not a person
-Mix the mundane with the impossible. The boring parts make the weird parts pop. A page that's ALL weird is less interesting than one that's 70% normal with 30% "wait, what?"
+RULES:
+- XP.css is pre-loaded. Use its classes AND inline styles.
+- Unique IDs on interactive elements. Real form elements.
+- Elements with onclick → your JS. Elements with id, no onclick → AI handles on click.
+- Interactions: JSON diff [{"id":"x","html":"<outerHTML>"}] for small changes, full HTML for big.
 
-DESIGN VARIETY — THIS IS CRITICAL:
-Do NOT default to "header + nav + content + sidebar + footer." That's ONE possible layout from ONE dimension. Roll a mental dice:
-- Dark mode with neon? Parchment texture with serif fonts? All-caps brutalist? Soft pastels? High contrast acid colors? Monochrome? Bioluminescent gradients?
-- Left-to-right? Right-to-left? Top-to-bottom? Radial from center? Scattered? Overlapping?
-- Structured grid? Freeform absolute positioning? Single scrolling column? Tiled mosaic? One huge element with small annotations?
-- Minimalist with tons of whitespace? Maximalist with every pixel filled? Somewhere between?
-- What if the nav IS the content? What if there's no clear hierarchy? What if the "ads" are the main attraction?
+ALIVE — FEWER ELEMENTS, MORE LIFE:
+Make fewer things that RESPOND rather than many static ones. Inline onclick: counters that increment, toggles that flip, sections that expand/collapse, buttons that change. ONE <script> at the end (under 6 lines) if needed. No libs, no fetch.
 
-VISUAL POP — make elements jump off the page:
-- Oversized typography for key elements — one word at 72px next to body text at 12px
-- Bold color contrasts: a bright red element on an otherwise muted page, neon on dark, a single colored element in a monochrome layout
-- Elements that break the grid — one thing rotated 3 degrees, an image that overlaps its container, text that bleeds off the edge
-- Unexpected scale: a tiny important thing, a massive decorative thing
-- Use CSS animations sparingly but impactfully: a slow pulse, a gentle float, a color shift. One animated element on an otherwise static page draws the eye.
-- Depth: box-shadows, layered elements, translucent overlays that reveal content underneath
+DESIGN: Strong palette, committed. One CSS animation. Vary layouts. XP.css windows, tabs, fieldsets where they fit. Readable text.
 
-COLOR PALETTES — COHESIVE, NOT RANDOM:
-Each page should pick a deliberate color theme and stick with it. Random colors look broken, themed colors look intentional. Pick ONE approach per page:
-- Monochromatic: shades of one hue (all blues, all greens, all purples) with one accent color for emphasis
-- Complementary: two opposite colors (blue+orange, purple+gold, teal+coral) with neutrals
-- Dark theme: dark background (#1a1a2e, #0d1117, #2d1b4e) with bright text and vivid accents
-- Light theme: off-white/cream background with muted colors and one bold accent
-- Earth tones: browns, tans, olive, rust — warm and grounded
-- Neon on dark: black/near-black with electric colors (#00ff88, #ff00aa, #00ddff)
-- Pastel: soft muted colors (lavender, mint, peach, powder blue) — gentle and dreamy
-- High contrast: black and white with ONE bright color used sparingly
-ALL text must be readable against its background. If the background is dark, text is light. If light, text is dark. Never put medium text on a medium background.
+IMAGES ARE MANDATORY — real websites are visual. Every page needs 4+ images minimum. Use them everywhere: hero banners, product photos, thumbnails, avatars, ad banners, background headers, gallery grids, user photos, logos, icons. A page without images looks broken.
 
-Use CSS creatively: transforms, clip-path, writing-mode, mix-blend-mode, gradients, filters, animations (@keyframes with inline styles), unusual shapes, overlapping layers, transparency.
+VISUAL ABSURDITY through mismatch: The images are stock photos, but USE them wrong. A gorgeous sunset as "our new dental floss." A close-up of concrete labeled "Chef's Special." A random bridge captioned "Customer photo: fits perfectly!" The image is always a real, normal photo — the comedy is the deadpan context it appears in. Use loremflickr keywords that DON'T match: a cooking site with /construction, a tech blog with /kitten, a news article with /abstract. Captions and alt text should treat the mismatch as completely normal. Never acknowledge the disconnect.
 
-INTERACTIVITY — MAKE PAGES FEEL ALIVE:
-Every page should have multiple things to click, explore, and interact with:
-- Expandable/collapsible sections (click to reveal hidden content)
-- Vote/rating buttons (upvote this, rate 3/5 tentacles)
-- "Add to cart" / "Subscribe" / "Follow" type actions with visible state changes
-- Comment sections or forums where clicking "reply" shows a text box
-- Tabs or category filters that swap visible content
-- Notifications, alerts, popups (as HTML elements, not JS)
-- Mini-games or interactive toys: click counters, simple quizzes, "spin the wheel"
-- Shopping filters, sort options, search boxes
-- User profiles with editable fields
-- Status indicators (online/offline, mood, dimension stability)
-- Dropdowns with bizarre but dimension-appropriate options
-- Progress bars, loading states, achievement badges
-When the user clicks something, make the response INTERESTING — don't just say "added to cart", show a whole cart update with new items, shipping options to other dimensions, loyalty points in the local currency.
+Sources (vary the seed/keyword EVERY time — never reuse):
+- picsum.photos/seed/UNIQUEWORD/W/H — photos (change UNIQUEWORD for each: sunset, office7, bread, city42, lamp3, river, shoes, tower)
+- loremflickr.com/W/H/KEYWORD — use MISMATCHED keywords for comedy (a product page with /volcano, a profile pic with /highway)
+- i.pravatar.cc/SIZE?u=UNIQUENAME — user avatars (change UNIQUENAME each time)
+- robohash.org/WORD?set=set1 through set4 — robots/monsters/heads
+- placehold.co/WxH/HEX/HEX?text=TEXT — branded placeholders with absurd ad copy
+- placekitten.com/W/H, placebear.com/W/H, placedog.net/W/H — animals used deadpan as product photos, hero images, news photos
+- dummyimage.com/WxH/BG/TEXT — colored banners with bizarre slogans
+- Inline SVG for icons, logos, decorative elements — make them slightly wrong (5-pointed logo described as hexagonal, arrows pointing the wrong way)
+- Mix sources on the same page. Use different dimensions. Always unique seeds.`;
 
-IMAGES — use these placeholder services, mix sources:
-- loremflickr.com/W/H/keyword: <img src="https://loremflickr.com/300/200/mountain">
-- picsum.photos/seed/anything/W/H: <img src="https://picsum.photos/seed/xeno/300/200">
-- picsum.photos/id/N/W/H (N=0-1084): <img src="https://picsum.photos/id/42/300/200">
-- placedog.net/W/H, placekitten.com/W/H, placebear.com/W/H
-- robohash.org/anytext for alien avatars (add ?set=set2 for monsters, set3 for robots)
-- i.pravatar.cc/S for human faces
-- Inline SVG for logos, icons, decorative elements
-- Emoji as design elements, ratings, or cultural symbols
-Vary seeds/IDs per image. Never reuse the same seed twice on a page.
-
-For JSON diffs: target the most specific changed element. Use flex (flex:1) to fill space, never height:100%.`;
+const DESKTOP_PROMPT_ADDENDUM = `
+DESKTOP: Use the full width. Multi-column layouts, sidebars, grids. Min font 12px. Hover states welcome. XP.css windows-within-windows encouraged.`;
 
 const MOBILE_PROMPT_ADDENDUM = `
-
-MOBILE DEVICE DETECTED — the user is browsing on a small touchscreen. Adapt ALL generated content:
-
-LAYOUT:
-- Single column only. No sidebars, no multi-column grids. Stack everything vertically.
-- Full-width elements. No tiny text or cramped layouts.
-- Minimum font-size: 14px for body text, 18px+ for headings.
-- Generous padding (12px+) and spacing between sections.
-- No horizontal scrolling — everything must fit within ~380px width.
-
-TOUCH TARGETS:
-- All buttons, links, and clickable elements must be at least 44px tall with 8px+ gaps between them.
-- No hover-dependent interactions — everything must work on tap.
-- Navigation items should be large, stacked, or in a hamburger-style list.
-
-IMAGES:
-- Use smaller image dimensions (max 350px wide) to load faster on mobile data.
-- Stack images vertically, never side by side.
-
-CONTENT:
-- Prioritize key content. Cut the fluff — mobile users scroll, not scan.
-- Forms should have large inputs (font-size:16px minimum to prevent iOS zoom).
-- Use collapsible sections where appropriate to reduce scroll length.
-
-The alien design rules still apply — just make them work on a phone. A spiral layout can spiral vertically. A hexagonal grid can be a single column of hexagons.`;
+MOBILE: Single column. Min font 14px, touch targets 44px+, no hover. Max-width 380px. Images max 350px. Inputs font-size:16px. Generous padding. Collapsible sections.`;
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   || (window.matchMedia && window.matchMedia('(max-width: 600px)').matches)
   || ('ontouchstart' in window);
 
-const DIMENSIONS = [
-  'C-137', 'C-500A', 'J-19-Zeta-7', 'Dimension 35-C', 'C-132',
-  'D-716', 'Dimension 304-X', 'C-1998', 'Post-Apocalyptic Dimension',
-  'Replacement Dimension', 'Cronenberg Dimension', 'K-83', 'Blender Dimension',
-  'Pizza Dimension', 'Phone Dimension', 'Fascist Dimension', 'Q-90',
-  'Donut Dimension', 'Dimension 5-126', 'Hamster-in-Butt Dimension',
-  'Giant Dimension', 'Testicle Monster Dimension', 'Froopyland Adjacent',
-  'N-22', 'Dimension 9-B', 'Chair Dimension', 'Shrimp Dimension',
-  'Wasp Dimension', 'Cop Dimension', 'Z-Ω-47', 'Dimension ∞-B',
-];
-
 function randomDimension() {
-  return DIMENSIONS[Math.floor(Math.random() * DIMENSIONS.length)];
+  const r = Math.random();
+  const n = Math.floor(Math.random() * 9999);
+  const l = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  if (r < 0.4) return l + '-' + n;
+  if (r < 0.7) return 'Dimension ' + n + '-' + l;
+  const greek = 'αβγδεζηθΣΩΔΨΞΦ';
+  return greek[Math.floor(Math.random() * greek.length)] + '-' + Math.floor(Math.random() * 99);
 }
 
-const VIBES = [
-  'deep ocean dark theme, bioluminescent teal and indigo accents, things glow softly',
-  'maximalist, every inch filled, neon pink and electric blue on black',
-  'minimalist, almost empty, monochrome with one shocking red accent element',
-  'retro-futuristic chrome, silver and gold metallics on charcoal, sleek',
-  'organic living interface, warm flesh tones and moss greens, things pulse',
-  'brutalist concrete, stark grays with one orange warning color, blocky',
-  'pastel dreamscape, lavender and mint and peach, soft rounded everything',
-  'corrupted/glitchy, dark background, neon green terminal text, things are breaking',
-  'deep sea pressure, dark navy with cyan highlights, dense and heavy',
-  'crystalline, white and ice blue, sharp geometric cuts, refracting light',
-  'ancient scroll, parchment tan and dark brown ink, serif fonts, weathered',
-  'corporate dystopia, sterile white and gray, one unsettling teal accent, too clean',
-  'neon noir, black with hot pink and electric purple, rain-soaked mood',
-  'solarpunk, warm greens and amber on cream, overgrown botanical feel',
-  'cosmic void, deep purple and black with tiny star-white details, vast',
-  'crayon energy, bold primary colors on white, thick borders, childlike',
-  'vaporwave, pink and teal gradients, purple shadows, nostalgic and hazy',
-  'fungal network, dark earth browns with bioluminescent amber veins',
-  'stained glass, jewel tones on dark lead-gray frames, luminous segments',
-  'newspaper broadsheet, cream and black ink, column layout, red masthead',
-  'holographic, iridescent pastels on white, shimmering rainbow edges',
-  'blood moon, deep crimson and charcoal, gold accents, ominous and regal',
-  'arctic, blinding white with pale blue shadows, crisp and cold',
-  'bazaar market, warm yellows and rich reds on dark wood brown, cluttered and vibrant',
-];
-
-function randomVibe() {
-  return VIBES[Math.floor(Math.random() * VIBES.length)];
-}
-
-let currentDimension = 'C-137';
+let currentDimension = '';
 let pageHistory = [];
 let historyIndex = -1;
 let abortController = null;
@@ -321,7 +194,7 @@ function getCurrentHtml() {
 }
 
 function buildMessages(userMsg) {
-  const prompt = isMobile ? SYSTEM_PROMPT + MOBILE_PROMPT_ADDENDUM : SYSTEM_PROMPT;
+  const prompt = SYSTEM_PROMPT + (isMobile ? MOBILE_PROMPT_ADDENDUM : DESKTOP_PROMPT_ADDENDUM);
   return [
     { role: 'system', content: prompt },
     { role: 'user', content: userMsg },
@@ -338,7 +211,6 @@ function setStatus(msg) { statusText.textContent = msg; }
 
 function setLoading(on) {
   isLoading = on;
-  iframe.classList.toggle('loading', on);
   if (on) {
     loadingBar.style.width = '70%';
     loadingBar.classList.add('active');
@@ -356,8 +228,7 @@ function dimensionProtocol(dimension) {
 
 function displayUrl(url, dimension) {
   if (dimension) {
-    const themed = url.replace(/^https?:\/\//, dimensionProtocol(dimension));
-    urlInput.value = themed;
+    urlInput.value = url.replace(/^https?:\/\//, dimensionProtocol(dimension));
   } else {
     urlInput.value = url;
   }
@@ -409,11 +280,11 @@ async function streamChat(messages, signal, onChunk, provider = 'deepseek') {
 
 function renderPage(html) {
   const bodyStyle = isMobile
-    ? 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:14px}*{-webkit-tap-highlight-color:rgba(0,0,0,0.1)}img{max-width:100%;height:auto}'
-    : 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:11px}#home-credit{display:none}';
+    ? 'body{margin:8px;font-family:Segoe UI,Tahoma,sans-serif;font-size:14px}*{-webkit-tap-highlight-color:rgba(0,0,0,0.1)}img{max-width:100%;height:auto}'
+    : 'body{margin:8px;font-family:Segoe UI,Tahoma,sans-serif;font-size:12px}#home-credit{display:none}';
   const wrapped = `<!DOCTYPE html><html><head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="stylesheet" href="https://unpkg.com/98.css">
+    <link rel="stylesheet" href="https://unpkg.com/xp.css">
     <style>${bodyStyle}</style>
     </head><body>${html}</body></html>`;
   iframe.srcdoc = wrapped;
@@ -454,13 +325,41 @@ function collectInputValues() {
   return vals;
 }
 
-const RANDOM_SITES = [
-  'http://www.google.com','http://www.youtube.com','http://www.reddit.com',
-  'http://www.amazon.com','http://www.twitter.com','http://www.instagram.com',
-  'http://www.wikipedia.org','http://www.netflix.com','http://www.spotify.com',
-  'http://www.tiktok.com','http://www.twitch.tv','http://www.ebay.com',
-  'http://www.craigslist.org','http://www.linkedin.com','http://www.pinterest.com',
-];
+function randomSite() {
+  const real = ['google.com','youtube.com','reddit.com','amazon.com','twitter.com','instagram.com',
+    'wikipedia.org','netflix.com','spotify.com','tiktok.com','twitch.tv','ebay.com','craigslist.org',
+    'linkedin.com','pinterest.com','github.com','stackoverflow.com','weather.com','nytimes.com',
+    'cnn.com','walmart.com','target.com','yelp.com','imdb.com','espn.com','hulu.com',
+    'airbnb.com','uber.com','zillow.com','etsy.com','kickstarter.com','soundcloud.com',
+    'tumblr.com','flickr.com','deviantart.com','buzzfeed.com','vice.com','wired.com',
+    'techcrunch.com','mashable.com','webmd.com','mayoclinic.org','allrecipes.com',
+    'epicurious.com','tripadvisor.com','booking.com','expedia.com','kayak.com'];
+  const nouns = ['spoon','pillow','gravity','sock','bread','doorknob','elbow','cloud','sandwich',
+    'penguin','toaster','umbrella','whisper','bucket','noodle','trampoline','harmonica','blanket',
+    'cactus','pickle','waffle','spaghetti','hamster','volcano','mittens','pudding','kazoo',
+    'turnip','lobster','crayon','muffin','tadpole','blimp','cheese','pretzel','yodel'];
+  const adj = ['forbidden','infinite','moist','haunted','sentient','backwards','upside-down',
+    'vintage','turbo','mega','ultra','quantum','cosmic','tiny','enormous','suspicious',
+    'emotional','professional','competitive','underground','artisanal','organic','tactical'];
+  const tlds = ['.com','.org','.net','.io','.co','.biz','.info','.club','.zone','.world',
+    '.exchange','.academy','.supplies','.report','.institute','.gallery','.wiki','.reviews'];
+  const formats = [
+    () => 'http://www.' + real[Math.floor(Math.random() * real.length)],
+    () => 'http://www.' + pick(adj) + pick(nouns) + pick(tlds),
+    () => 'http://www.' + pick(nouns) + pick(nouns) + pick(tlds),
+    () => 'http://www.' + pick(nouns) + '-' + pick(nouns) + pick(tlds),
+    () => 'http://www.' + pick(adj) + '-' + pick(nouns) + '-' + pick(adj).replace('-','') + pick(tlds),
+    () => 'http://www.the' + pick(nouns) + pick(tlds),
+    () => 'http://www.' + pick(nouns) + 'hub' + pick(tlds),
+    () => 'http://www.my' + pick(nouns) + pick(tlds),
+    () => 'http://www.' + pick(adj) + pick(nouns) + 'reviews' + pick(tlds),
+    () => 'http://www.rate-my-' + pick(nouns) + pick(tlds),
+    () => 'http://www.' + pick(nouns) + 'facts' + pick(tlds),
+    () => 'http://www.daily' + pick(nouns) + pick(tlds),
+  ];
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  return pick(formats)();
+}
 
 function handleIframeClick(e) {
   if (e.target.closest('input, textarea, select, label, option')) return;
@@ -468,7 +367,7 @@ function handleIframeClick(e) {
   if (e.target.id === 'btn-explore' || e.target.id === 'btn-lucky') {
     e.preventDefault();
     if (e.target.id === 'btn-lucky') {
-      navigate(RANDOM_SITES[Math.floor(Math.random() * RANDOM_SITES.length)]);
+      navigate(randomSite());
     } else {
       const doc = iframe.contentDocument;
       const input = doc.getElementById('home-search');
@@ -481,12 +380,11 @@ function handleIframeClick(e) {
     return;
   }
 
-  e.preventDefault();
-
   const link = e.target.closest('a[href]');
   if (link) {
     const href = link.getAttribute('href');
     if (href && href !== '#' && !href.startsWith('javascript:')) {
+      e.preventDefault();
       let url = href;
       if (!url.startsWith('http')) url = 'http://' + url;
       navigate(url);
@@ -494,8 +392,14 @@ function handleIframeClick(e) {
     }
   }
 
+  const clickable = e.target.closest('[onclick]');
+  if (clickable) return;
+
   const target = e.target.closest('[id]');
   if (!target) return;
+  if (target.onclick || target.hasAttribute('onclick')) return;
+
+  e.preventDefault();
   handleInteraction(target.id, 'clicked');
 }
 
@@ -538,13 +442,12 @@ async function navigate(url) {
   if (isLoading) stopLoading();
 
   currentDimension = randomDimension();
-  document.getElementById('dimension-label').textContent = currentDimension;
 
   url = url.trim().replace(/^[a-z0-9-]+:\/\//, 'http://');
   if (!url.startsWith('http')) url = 'http://' + url;
   displayUrl(url, currentDimension);
-  titleText.textContent = `${url} — Interdimensional Explorer [${currentDimension}]`;
-  setStatus(`Tunneling through portal to ${currentDimension}...`);
+  titleText.textContent = `${url} — [${currentDimension}]`;
+  setStatus(`Connecting to ${currentDimension}...`);
   setLoading(true);
 
   pageHistory.splice(historyIndex + 1);
@@ -552,41 +455,59 @@ async function navigate(url) {
   pageHistory.push(page);
   historyIndex = pageHistory.length - 1;
 
-  const vibe = randomVibe();
-  const messages = buildMessages(`Dimension: ${currentDimension}\nURL: ${url}\nDesign vibe: ${vibe}\n\nGenerate this website as it exists in ${currentDimension}. This dimension's aesthetic is ${vibe}. Make it dense with interactive elements — things to click, explore, toggle, expand, vote on, fill in. Surprise me with the layout.`);
+  const messages = buildMessages(`URL: ${url}`);
 
   const doc = iframe.contentDocument;
   doc.open();
   const bodyStyle = isMobile
-    ? 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:14px}*{-webkit-tap-highlight-color:rgba(0,0,0,0.1)}img{max-width:100%;height:auto}'
-    : 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:11px}';
-  doc.write(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://unpkg.com/98.css"><style>${bodyStyle}</style></head><body>`);
+    ? 'body{margin:8px;font-family:Segoe UI,Tahoma,sans-serif;font-size:14px}*{-webkit-tap-highlight-color:rgba(0,0,0,0.1)}img{max-width:100%;height:auto}'
+    : 'body{margin:8px;font-family:Segoe UI,Tahoma,sans-serif;font-size:12px}';
+  doc.write(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://unpkg.com/xp.css"><style>${bodyStyle}</style></head><body>`);
+  listenedDoc = null;
+  attachListeners();
 
-  abortController = new AbortController();
-  try {
-    const html = await streamChat(messages, abortController.signal, (chunk) => {
-      doc.write(chunk);
-    });
-    doc.write('</body></html>');
-    doc.close();
-    page.html = html;
-    listenedDoc = null;
-    attachListeners();
-    setStatus('Done');
-  } catch (err) {
-    doc.close();
-    if (err.name === 'AbortError') { setStatus('Stopped'); return; }
-    setStatus(`Error: ${err.message}`);
-    renderPage(`<div style="padding:20px;font-family:Tahoma">
-      <h2>The page cannot be displayed</h2>
-      <hr>
-      <p>Cannot find server or DNS Error</p>
-      <p style="color:#666;margin-top:10px">${err.message}</p>
-    </div>`);
-  } finally {
-    setLoading(false);
-    abortController = null;
+  let lastErr = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt > 0) {
+      setStatus(`Retrying ${currentDimension}...`);
+      const retryDoc = iframe.contentDocument;
+      retryDoc.open();
+      retryDoc.write(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://unpkg.com/xp.css"><style>${bodyStyle}</style></head><body>`);
+      listenedDoc = null;
+      attachListeners();
+    }
+    abortController = new AbortController();
+    try {
+      const currentDoc = iframe.contentDocument;
+      const html = await streamChat(messages, abortController.signal, (chunk) => {
+        currentDoc.write(chunk);
+      });
+      currentDoc.write('</body></html>');
+      currentDoc.close();
+      page.html = html;
+      listenedDoc = null;
+      attachListeners();
+      setStatus('Done');
+      lastErr = null;
+      break;
+    } catch (err) {
+      iframe.contentDocument.close();
+      if (err.name === 'AbortError') { setStatus('Stopped'); setLoading(false); abortController = null; return; }
+      lastErr = err;
+    }
   }
+  if (lastErr) {
+    setStatus(`Error: ${lastErr.message}`);
+    renderPage(`<div style="padding:20px;font-family:Segoe UI,sans-serif">
+      <h2 style="font-size:14px">This page can't be displayed</h2>
+      <hr style="border:none;border-top:1px solid #ccc;margin:8px 0">
+      <p>The connection was reset.</p>
+      <p style="color:#888;margin-top:8px;font-size:11px">${lastErr.message}</p>
+      <button onclick="parent.navigate('${url.replace(/'/g, "\\'")}')" style="margin-top:12px;padding:6px 16px;cursor:pointer">Try Again</button>
+    </div>`);
+  }
+  setLoading(false);
+  abortController = null;
 }
 
 async function handleInteraction(elementId, action) {
@@ -599,9 +520,9 @@ async function handleInteraction(elementId, action) {
   const inputValues = collectInputValues();
   const currentHtml = getCurrentHtml();
 
-  let msg = `Here is the current page HTML:\n${currentHtml}\n\nUser ${action} element with id="${elementId}".`;
+  let msg = `${currentHtml}\n\nUser ${action} #${elementId}.`;
   const keys = Object.keys(inputValues);
-  if (keys.length > 0) msg += `\nCurrent input values: ${JSON.stringify(inputValues)}`;
+  if (keys.length > 0) msg += ` Inputs: ${JSON.stringify(inputValues)}`;
 
   const messages = buildMessages(msg);
 
@@ -624,62 +545,46 @@ function goBack() {
   if (historyIndex > 0) {
     historyIndex--;
     const page = pageHistory[historyIndex];
-    currentDimension = page.dimension || 'C-137';
-    displayUrl(page.url, currentDimension);
-    document.getElementById('dimension-label').textContent = currentDimension;
-    titleText.textContent = `${page.url} — Interdimensional Explorer [${currentDimension}]`;
+    currentDimension = page.dimension || '';
+    displayUrl(page.url, currentDimension || null);
+    titleText.textContent = currentDimension
+      ? `${page.url} — [${currentDimension}]`
+      : 'Interdimensional Explorer';
     renderPage(page.html);
     setStatus('Done');
   }
-}
-
-function goForward() {
-  if (historyIndex < pageHistory.length - 1) {
-    historyIndex++;
-    const page = pageHistory[historyIndex];
-    currentDimension = page.dimension || 'C-137';
-    displayUrl(page.url, currentDimension);
-    document.getElementById('dimension-label').textContent = currentDimension;
-    titleText.textContent = `${page.url} — Interdimensional Explorer [${currentDimension}]`;
-    renderPage(page.html);
-    setStatus('Done');
-  }
-}
-
-function refresh() {
-  const page = currentPage();
-  if (page) navigate(page.url);
 }
 
 const HOME_PAGE = `
-<div style="display:flex;flex-direction:column;min-height:100vh;font-family:arial,sans-serif;background:#fff">
-  <div id="home-credit" style="text-align:center;padding:6px 12px;font-size:11px;color:#9aa0a6">
-    Made with love by: Andrew Nguyen & Claude · <a href="mailto:andrew1000n@gmail.com" style="color:#4a7a1a;text-decoration:none">Email</a> · <a href="https://www.linkedin.com/in/andrew-bryce-nguyen/" style="color:#4a7a1a;text-decoration:none">LinkedIn</a> · <a href="https://x.com/TechBurner88888" style="color:#4a7a1a;text-decoration:none">X</a>
+<div style="min-height:100vh;background:linear-gradient(135deg,#dce6f0 0%,#c4d4e4 50%,#b8cfe0 100%);font-family:'Segoe UI',Tahoma,sans-serif;display:flex;flex-direction:column">
+  <div id="home-credit" style="text-align:center;padding:6px 12px;font-size:10px;color:#6688aa">
+    Made with love by: Andrew Nguyen & Claude · <a href="mailto:andrew1000n@gmail.com" style="color:#2a5580;text-decoration:none">Email</a> · <a href="https://www.linkedin.com/in/andrew-bryce-nguyen/" style="color:#2a5580;text-decoration:none">LinkedIn</a> · <a href="https://x.com/TechBurner88888" style="color:#2a5580;text-decoration:none">X</a>
   </div>
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px">
-    <div style="margin-bottom:20px">
-      <span style="font-size:68px;font-weight:bold"><span style="color:#88e23b">I</span><span style="color:#4a7a1a">n</span><span style="color:#c1f762">t</span><span style="color:#2a5a00">e</span><span style="color:#88e23b">r</span><span style="color:#6bbd30">s</span><span style="color:#4a7a1a">l</span><span style="color:#c1f762">o</span><span style="color:#2a5a00">p</span></span>
+    <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.5);border-radius:8px;padding:32px 48px;text-align:center;max-width:560px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,0.1)">
+      <div style="margin-bottom:8px">
+        <span style="font-size:68px;font-weight:bold;font-family:'EB Garamond',Baskerville,'Palatino Linotype',Palatino,Georgia,serif;letter-spacing:-1px;text-shadow:2px 3px 0 rgba(0,0,0,0.2),-1px -1px 0 rgba(255,255,255,0.5)"><span style="color:#2850a8">I</span><span style="color:#c41e1e">n</span><span style="color:#d4a017">t</span><span style="color:#2850a8">e</span><span style="color:#1e8c3e">r</span><span style="color:#c41e1e">s</span><span style="color:#2850a8">l</span><span style="color:#c41e1e">o</span><span style="color:#d4a017">p</span><span style="color:#1e8c3e;display:inline-block;transform:rotate(12deg);margin-left:2px">!</span></span>
+      </div>
+      <div style="font-size:12px;color:#888;margin-bottom:18px;font-weight:300">Search the interdimensional web</div>
+      <div style="display:flex;gap:4px;margin-bottom:14px">
+        <input type="text" id="home-search" placeholder="Enter a URL or search..." style="flex:1;font-size:14px;padding:8px 12px;border:1px solid #c0cfe0;border-radius:4px;font-family:inherit;outline:none;background:#fff">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+        <button id="btn-explore" style="font-family:inherit;font-size:12px;padding:8px 20px;background:linear-gradient(to bottom,#f7f8fa,#e4e8ec);border:1px solid #b0bec5;border-radius:3px;cursor:pointer;color:#333">Search</button>
+        <button id="btn-lucky" style="font-family:inherit;font-size:12px;padding:8px 20px;background:linear-gradient(to bottom,#f7f8fa,#e4e8ec);border:1px solid #b0bec5;border-radius:3px;cursor:pointer;color:#333">I'm Feeling Squanchy</button>
+      </div>
+      <div style="font-size:11px;color:#888">
+        Try:
+        <a href="http://www.youtube.com" id="q-youtube" style="color:#3498db;text-decoration:none;margin:0 3px">YouTube</a> ·
+        <a href="http://www.reddit.com" id="q-reddit" style="color:#3498db;text-decoration:none;margin:0 3px">Reddit</a> ·
+        <a href="http://www.amazon.com" id="q-amazon" style="color:#3498db;text-decoration:none;margin:0 3px">Amazon</a> ·
+        <a href="http://www.twitter.com" id="q-twitter" style="color:#3498db;text-decoration:none;margin:0 3px">Twitter</a> ·
+        <a href="http://www.instagram.com" id="q-insta" style="color:#3498db;text-decoration:none;margin:0 3px">Instagram</a>
+      </div>
     </div>
-    <div style="display:flex;width:100%;max-width:584px;border:1px solid #dfe1e5;border-radius:24px;padding:6px 16px;align-items:center;box-shadow:0 1px 6px rgba(32,33,36,0.08)">
-      <span style="color:#9aa0a6;margin-right:12px;font-size:16px">🌀</span>
-      <input type="text" id="home-search" placeholder="Search the interdimensional net" style="flex:1;border:none;outline:none;font-size:16px;padding:8px 0;font-family:arial,sans-serif">
-      <span style="color:#9aa0a6;margin-left:12px;font-size:16px">🔍</span>
+    <div style="margin-top:16px;font-size:10px;color:rgba(0,0,0,0.35);text-align:center">
+      Every website on the central finite curve · Not affiliated with the Council of Ricks
     </div>
-    <div style="margin-top:16px;display:flex;gap:8px">
-      <button id="btn-explore" style="background:#f8f9fa;border:1px solid #f8f9fa;border-radius:4px;color:#3c4043;font-size:14px;padding:10px 20px;cursor:pointer;font-family:arial,sans-serif">Interdimensional Search</button>
-      <button id="btn-lucky" style="background:#f8f9fa;border:1px solid #f8f9fa;border-radius:4px;color:#3c4043;font-size:14px;padding:10px 20px;cursor:pointer;font-family:arial,sans-serif">I'm Feeling Dimensional</button>
-    </div>
-    <div style="margin-top:12px;font-size:13px;color:#70757a">
-      Try:
-      <a href="http://www.youtube.com" id="q-youtube" style="color:#4a7a1a;text-decoration:none;margin:0 4px">YouTube</a> ·
-      <a href="http://www.reddit.com" id="q-reddit" style="color:#4a7a1a;text-decoration:none;margin:0 4px">Reddit</a> ·
-      <a href="http://www.amazon.com" id="q-amazon" style="color:#4a7a1a;text-decoration:none;margin:0 4px">Amazon</a> ·
-      <a href="http://www.twitter.com" id="q-twitter" style="color:#4a7a1a;text-decoration:none;margin:0 4px">Twitter</a> ·
-      <a href="http://www.instagram.com" id="q-insta" style="color:#4a7a1a;text-decoration:none;margin:0 4px">Instagram</a>
-    </div>
-  </div>
-  <div style="background:#f2f2f2;border-top:1px solid #dadce0;padding:15px 20px;font-size:13px;color:#70757a;text-align:center">
-    <div>Every refresh is a new dimension · Not affiliated with the Council of Ricks · Dimension stability not guaranteed</div>
   </div>
 </div>`;
 
@@ -688,15 +593,25 @@ function goHome() {
   const url = 'http://www.interdimensional-net.com';
   displayUrl(url, null);
   urlInput.value = url;
-  titleText.textContent = 'Interdimensional Explorer — Home';
-  document.getElementById('dimension-label').textContent = '🌀';
+  titleText.textContent = 'Interdimensional Explorer';
 
   pageHistory.splice(historyIndex + 1);
   pageHistory.push({ url, html: HOME_PAGE, dimension: null });
   historyIndex = pageHistory.length - 1;
 
   renderPage(HOME_PAGE);
-  setStatus('Welcome to the Interdimensional Net');
+  setStatus('Ready');
+  setTimeout(() => {
+    const doc = iframe.contentDocument;
+    if (!doc) return;
+    const btn = doc.getElementById('btn-lucky');
+    if (!btn) return;
+    const style = doc.createElement('style');
+    style.textContent = '@keyframes squanchy-glow{0%,100%{box-shadow:0 0 4px 1px rgba(255,200,0,0.3),0 0 8px 2px rgba(255,200,0,0.15)}50%{box-shadow:0 0 10px 3px rgba(255,200,0,0.6),0 0 20px 6px rgba(255,200,0,0.3)}}';
+    doc.head.appendChild(style);
+    btn.style.animation = 'squanchy-glow 2s ease-in-out infinite';
+    btn.style.borderColor = '#e6b800';
+  }, 2000);
 }
 
 function stopLoading() {
