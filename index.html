@@ -13,6 +13,7 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
   }
 
@@ -22,15 +23,6 @@
   }
   .title-bar-text { color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
 
-  #toolbar {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    padding: 2px 4px;
-    border-bottom: 1px solid #4a7a1a;
-    background: linear-gradient(180deg, #d4f0a0 0%, #b8d880 100%);
-  }
-  #toolbar button { min-width: 50px; font-size: 11px; padding: 1px 6px; }
 
   #address-row {
     display: flex;
@@ -79,40 +71,11 @@
   }
   .status-bar-field { font-size: 11px; }
 
-  #author-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 2px 8px;
-    background: linear-gradient(180deg, #3a5c14 0%, #2a4410 100%);
-    border-bottom: 1px solid #1a3008;
-    font-size: 10px;
-    color: #c1f762;
-  }
-  #author-bar span { opacity: 0.9; }
-  #author-bar .contact-links { display: flex; gap: 8px; }
-  #author-bar a {
-    color: #fff;
-    text-decoration: none;
-    background: rgba(255,255,255,0.12);
-    padding: 1px 8px;
-    border-radius: 2px;
-    font-size: 10px;
-    transition: background 0.2s;
-  }
-  #author-bar a:hover { background: rgba(255,255,255,0.25); }
 
-  #mobile-nav { display: none; }
   #mobile-dimension { display: none; }
 
-  @media (max-width: 600px) {
-    .title-bar { display: none; }
-
-    #author-bar { padding: 4px 8px; font-size: 9px; }
-    #author-bar .contact-links { gap: 6px; }
-    #author-bar a { padding: 2px 8px; font-size: 9px; }
-
-    #toolbar { display: none; }
+  @media (max-width: 768px) {
+    .title-bar { display: none !important; }
 
     #address-row {
       padding: 4px 6px;
@@ -128,50 +91,15 @@
 
     #page-frame { -webkit-overflow-scrolling: touch; }
 
-    .status-bar { display: none; }
-
-    #mobile-nav {
-      display: flex;
-      flex-shrink: 0;
-      justify-content: space-around;
-      align-items: center;
-      padding: 2px 0;
-      padding-bottom: max(2px, env(safe-area-inset-bottom));
-      background: linear-gradient(180deg, #d4f0a0 0%, #b8d880 100%);
-      border-top: 1px solid #4a7a1a;
-    }
-    #mobile-nav button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: 1px solid transparent;
-      padding: 8px 12px;
-      min-width: 48px;
-      min-height: 44px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    #mobile-nav button:active {
-      border-color: #4a7a1a;
-      background: linear-gradient(180deg, #fff 0%, #d4f0a0 100%);
-      box-shadow: inset 1px 1px 2px rgba(0,0,0,0.15);
-    }
-    #mobile-nav button svg {
-      width: 20px;
-      height: 20px;
-      fill: none;
-      stroke: #2a5a00;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
+    .status-bar { display: none !important; }
   }
 </style>
 </head>
 <body>
 <div id="shell">
-  <div class="title-bar">
+  <div class="title-bar" style="position:relative">
     <div class="title-bar-text" id="title-text">Interdimensional Explorer — Dimension C-137</div>
+    <span id="author-credit" style="position:absolute;left:50%;transform:translateX(-50%);font-size:11px;color:#fff;white-space:nowrap;text-shadow:1px 1px 3px rgba(0,0,0,0.5)">Made with love by: Andrew Nguyen & Claude · <a href="mailto:andrew1000n@gmail.com" style="color:#fff;text-decoration:underline">Email</a> · <a href="https://www.linkedin.com/in/andrew-bryce-nguyen/" style="color:#fff;text-decoration:underline">LinkedIn</a> · <a href="https://x.com/TechBurner88888" style="color:#fff;text-decoration:underline">X</a></span>
     <div class="title-bar-controls">
       <button aria-label="Minimize"></button>
       <button aria-label="Maximize"></button>
@@ -179,28 +107,17 @@
     </div>
   </div>
 
-  <div id="author-bar">
-    <span>Made with love by: Andrew Nguyen & Claudie &lt;3</span>
-    <div class="contact-links">
-      <a href="mailto:andrew1000n@gmail.com" target="_blank">Email</a>
-      <a href="https://www.linkedin.com/in/andrew-bryce-nguyen/" target="_blank">LinkedIn</a>
-    </div>
-  </div>
-
-  <div id="toolbar">
-    <button onclick="goBack()">Back</button>
-    <button onclick="goForward()">Forward</button>
-    <button onclick="stopLoading()">Stop</button>
-    <button onclick="refresh()">Refresh</button>
-    <button onclick="goHome()">Home</button>
-    <span id="dimension-label">C-137</span>
-  </div>
+  <span id="dimension-label" style="display:none">C-137</span>
 
   <div id="address-row">
+    <button id="back-btn" onclick="goBack()" aria-label="Back" style="padding:2px 6px;font-size:14px;min-width:28px;line-height:1;cursor:pointer">←</button>
+    <button id="home-btn" onclick="goHome()" aria-label="Home" style="padding:2px 6px;font-size:12px;min-width:28px;line-height:1;cursor:pointer">⌂</button>
     <label>Address</label>
-    <input type="text" id="url-input" value="http://www.interdimensional-net.com"
-           onkeydown="if(event.key==='Enter'){navigate(this.value)}">
-    <button onclick="navigate(document.getElementById('url-input').value)">Go</button>
+    <div style="flex:1;position:relative;display:flex;align-items:center">
+      <input type="text" id="url-input" value="http://www.interdimensional-net.com"
+             onkeydown="if(event.key==='Enter'){navigate(this.value)}" style="width:100%;padding-right:24px">
+      <span id="url-clear" onclick="document.getElementById('url-input').value='';document.getElementById('url-input').focus()" style="position:absolute;right:6px;cursor:pointer;color:#999;font-size:14px;line-height:1;user-select:none">✕</span>
+    </div>
   </div>
 
   <div id="content-area">
@@ -212,20 +129,6 @@
     <p class="status-bar-field" id="status-text">Ready — connected to the Interdimensional Net</p>
   </div>
 
-  <div id="mobile-nav">
-    <button onclick="goBack()" aria-label="Back">
-      <svg viewBox="0 0 24 24"><path d="M19 12H5M5 12l6-6M5 12l6 6"/></svg>
-    </button>
-    <button onclick="goForward()" aria-label="Forward">
-      <svg viewBox="0 0 24 24"><path d="M5 12h14M19 12l-6-6M19 12l-6 6"/></svg>
-    </button>
-    <button onclick="goHome()" aria-label="Home">
-      <svg viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-5h2v5h6v-8h3L12 3z" fill="#2a5a00" stroke="none"/></svg>
-    </button>
-    <button onclick="stopLoading()" aria-label="Stop">
-      <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-  </div>
 </div>
 
 <script>
@@ -507,7 +410,7 @@ async function streamChat(messages, signal, onChunk, provider = 'deepseek') {
 function renderPage(html) {
   const bodyStyle = isMobile
     ? 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:14px}*{-webkit-tap-highlight-color:rgba(0,0,0,0.1)}img{max-width:100%;height:auto}'
-    : 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:11px}';
+    : 'body{margin:8px;font-family:Tahoma,sans-serif;font-size:11px}#home-credit{display:none}';
   const wrapped = `<!DOCTYPE html><html><head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="https://unpkg.com/98.css">
@@ -750,6 +653,9 @@ function refresh() {
 
 const HOME_PAGE = `
 <div style="display:flex;flex-direction:column;min-height:100vh;font-family:arial,sans-serif;background:#fff">
+  <div id="home-credit" style="text-align:center;padding:6px 12px;font-size:11px;color:#9aa0a6">
+    Made with love by: Andrew Nguyen & Claude · <a href="mailto:andrew1000n@gmail.com" style="color:#4a7a1a;text-decoration:none">Email</a> · <a href="https://www.linkedin.com/in/andrew-bryce-nguyen/" style="color:#4a7a1a;text-decoration:none">LinkedIn</a> · <a href="https://x.com/TechBurner88888" style="color:#4a7a1a;text-decoration:none">X</a>
+  </div>
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px">
     <div style="margin-bottom:20px">
       <span style="font-size:68px;font-weight:bold"><span style="color:#88e23b">I</span><span style="color:#4a7a1a">n</span><span style="color:#c1f762">t</span><span style="color:#2a5a00">e</span><span style="color:#88e23b">r</span><span style="color:#6bbd30">s</span><span style="color:#4a7a1a">l</span><span style="color:#c1f762">o</span><span style="color:#2a5a00">p</span></span>
@@ -759,11 +665,11 @@ const HOME_PAGE = `
       <input type="text" id="home-search" placeholder="Search the interdimensional net" style="flex:1;border:none;outline:none;font-size:16px;padding:8px 0;font-family:arial,sans-serif">
       <span style="color:#9aa0a6;margin-left:12px;font-size:16px">🔍</span>
     </div>
-    <div style="margin-top:28px;display:flex;gap:8px">
+    <div style="margin-top:16px;display:flex;gap:8px">
       <button id="btn-explore" style="background:#f8f9fa;border:1px solid #f8f9fa;border-radius:4px;color:#3c4043;font-size:14px;padding:10px 20px;cursor:pointer;font-family:arial,sans-serif">Interdimensional Search</button>
       <button id="btn-lucky" style="background:#f8f9fa;border:1px solid #f8f9fa;border-radius:4px;color:#3c4043;font-size:14px;padding:10px 20px;cursor:pointer;font-family:arial,sans-serif">I'm Feeling Dimensional</button>
     </div>
-    <div style="margin-top:20px;font-size:13px;color:#70757a">
+    <div style="margin-top:12px;font-size:13px;color:#70757a">
       Try:
       <a href="http://www.youtube.com" id="q-youtube" style="color:#4a7a1a;text-decoration:none;margin:0 4px">YouTube</a> ·
       <a href="http://www.reddit.com" id="q-reddit" style="color:#4a7a1a;text-decoration:none;margin:0 4px">Reddit</a> ·
@@ -796,6 +702,12 @@ function goHome() {
 function stopLoading() {
   if (abortController) abortController.abort();
 }
+
+if (isMobile) {
+  document.body.classList.add('mobile');
+}
+
+goHome();
 </script>
 </body>
 </html>
