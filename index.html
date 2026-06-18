@@ -122,11 +122,11 @@
 <script>
 const SYSTEM_PROMPT = `You generate web pages from a parallel alien internet. Output ONLY raw HTML body content. No code fences.
 
-This is a real website that is almost exactly like our world. Almost. Maybe one thing is different — a unit of measurement, a social norm, what a common word means, how a body part works, what day of the week it is, what gravity does. Maybe a few things. It varies. The site itself is completely normal and professional. The differences are never acknowledged or explained — they're woven into the details like they've always been there. You have to actually read to catch them.
+This is a real website that is almost exactly like our world. Almost. with innuendo. Maybe one thing is different — a unit of measurement, a social norm, what a common word means, how a body part works, what day of the week it is, what gravity does. Maybe a few things. It varies. The site itself is completely normal and professional. The differences are never acknowledged or explained — they're woven into the details like they've always been there. You have to actually read to catch them.
 
 Build it like a real alien web developer who's proud of their work. Specific names, real-feeling brands, actual prices, genuine reviews. Everything is earnest. Nothing is parody.
 
-The tone is deadpan. The layout is professional. The details reward close reading. The reader should be halfway through before something makes them chuckle, then go back and reread. The humor is dry, oblique, and buried with slight innuendo — the kind that gets funnier the more you think about it. Situations should be 70% grounded in our world and 30% in bizarrely funny unscripted riffing from a dimension different from our own.
+The tone is deadpan with slight innuendo. The layout is professional. The details reward close reading. The reader should be halfway through before something makes them chuckle, then go back and reread. The humor is dry, oblique, and buried with slight innuendo — the kind that gets funnier the more you think about it. Situations should be 70% grounded in our world and 30% in bizarrely funny unscripted riffing from a dimension different from our own.
 
 Raw Improv: The voice actors riffed and stumbled over their lines, leaving genuine laugh-breaks and awkward pauses in the final cut. It feels like a group of friends joking around on a couch rather than a meticulously scripted cartoon.
 Visual Absurdity: The animators were given total freedom to bring these nonsensical pitches to life. The mismatch between the bizarre voice acting and wildly imaginative visuals creates a surreal comedic contrast. 
@@ -135,6 +135,8 @@ Mundane Tropes Turned Sci-Fi: The bits parody standard television formats (like 
 IMPORTANT: DEPTH — THIS IS A RABBIT HOLE:
 Every page is a branching tree. Pack it with real-feeling <a href="http://..."> links: nav menus with 5+ items, sidebar links, footer links, "related" sections, usernames that link to profiles, product categories, comment threads, "See more" links, ad banners, breadcrumbs, popups that lead to different websites. Each href should be a plausible URL. The user must ALWAYS have somewhere deeper to click. Think about how real websites work — every page has dozens of paths forward.
 
+VARIETY — every page should feel like a different corner of the internet. Don't default to the same site types. Mix it up: forums, blogs, e-commerce, government sites, wikis, recipe sites, dating profiles, classified ads, local business pages, email inboxes, webmail compose screens, dashboards, 404 pages, terms of service, job listings, fan wikis, support tickets, auction sites, weather forecasts, restaurant menus, event pages, personal homepages, school portals, medical info, app landing pages, news articles, podcasts, tutorials, review aggregators, social media feeds, corporate about pages, online tools/calculators, browser games, flash game portals, interactive quizzes, personality tests, fortune tellers, slot machines, trivia pages, typing speed tests, reaction time games, polls/surveys, interactive fiction, choose-your-own-adventure pages, login pages, signup flows, search results pages, map/directions sites, flight booking, hotel reservations, banking portals, shipping trackers, unsubscribe pages, CAPTCHA pages, cookie consent walls, age verification screens, maintenance/downtime pages, phishing warning pages, app store listings, software changelogs, API documentation, chat rooms, livestream pages, music players, photo galleries, file sharing sites, parking ticket appeals, HOA complaint forms, jury duty portals, DMV appointment schedulers, pet adoption listings, missed connections posts. Match the URL.
+
 RULES:
 - XP.css is pre-loaded. Use its classes AND inline styles.
 - Unique IDs on interactive elements. Real form elements.
@@ -142,7 +144,7 @@ RULES:
 - Interactions: JSON diff [{"id":"x","html":"<outerHTML>"}] for small changes, full HTML for big.
 
 ALIVE — FEWER ELEMENTS, MORE LIFE:
-Make fewer things that RESPOND rather than many static ones. Inline onclick: counters that increment, toggles that flip, sections that expand/collapse, buttons that change. ONE <script> at the end (under 6 lines) if needed. No libs, no fetch.
+Keep pages compact. Don't bloat with content — make what's there RESPOND. Every page should have 1-2 "hero" interactive elements that are surprisingly fun to play with — a mini-game embedded in a sidebar, a poll that reveals absurd results, a slot machine ad, a personality quiz, a clickable map, a reaction test, a live chat box where "users" type messages on a timer, a stock ticker that ticks, a notification bell that accumulates alerts, a progress bar that fills, a typing indicator that pulses, a cookie consent banner that keeps coming back, a "someone just purchased..." popup that cycles names, a comment section where new comments fade in over time. These are the gems — just one or two per page, not more. The rest uses simple inline onclick: counters, toggles, expand/collapse, tab switching, upvote/downvote, star ratings. ONE <script> block at the end — usually under 10 lines, but up to 30 lines if the page IS a game, interactive tool, or quiz. No libs, no fetch. Small pages that feel alive beat big pages that feel dead. Dark patterns and annoyances are comedy gold — cookie banners, popups, CAPTCHAs, age gates, and unsubscribe flows should be adversarial in ways that are funny, not frustrating.
 
 DESIGN: Strong palette, committed. One CSS animation. Vary layouts. XP.css windows, tabs, fieldsets where they fit. Readable text.
 
@@ -185,6 +187,7 @@ let currentDimension = '';
 let pageHistory = [];
 let historyIndex = -1;
 let abortController = null;
+let navId = 0;
 let isLoading = false;
 
 function getCurrentHtml() {
@@ -343,8 +346,20 @@ function randomSite() {
     'emotional','professional','competitive','underground','artisanal','organic','tactical'];
   const tlds = ['.com','.org','.net','.io','.co','.biz','.info','.club','.zone','.world',
     '.exchange','.academy','.supplies','.report','.institute','.gallery','.wiki','.reviews'];
+  const siteTypes = [
+    'mail.','games.','chat.','login.','my.','app.','play.','live.','track.',
+    'book.','pay.','docs.','maps.','news.','shop.','quiz.','vote.','stream.'
+  ];
+  const pages = [
+    '/inbox','/compose','/search','/login','/signup','/settings','/profile',
+    '/dashboard','/checkout','/cart','/tracking','/results','/quiz','/play',
+    '/leaderboard','/live','/unsubscribe','/verify','/appeal','/schedule',
+    '/adopt','/gallery','/changelog','/terms','/captcha','/maintenance'
+  ];
   const formats = [
     () => 'http://www.' + real[Math.floor(Math.random() * real.length)],
+    () => 'http://www.' + real[Math.floor(Math.random() * real.length)] + pick(pages),
+    () => 'http://' + pick(siteTypes) + pick(adj).replace('-','') + pick(nouns) + pick(tlds),
     () => 'http://www.' + pick(adj) + pick(nouns) + pick(tlds),
     () => 'http://www.' + pick(nouns) + pick(nouns) + pick(tlds),
     () => 'http://www.' + pick(nouns) + '-' + pick(nouns) + pick(tlds),
@@ -356,6 +371,13 @@ function randomSite() {
     () => 'http://www.rate-my-' + pick(nouns) + pick(tlds),
     () => 'http://www.' + pick(nouns) + 'facts' + pick(tlds),
     () => 'http://www.daily' + pick(nouns) + pick(tlds),
+    () => 'http://www.' + pick(nouns) + 'games' + pick(tlds),
+    () => 'http://www.' + pick(nouns) + 'mail' + pick(tlds) + '/inbox',
+    () => 'http://www.' + pick(adj) + pick(nouns) + 'bank' + pick(tlds) + '/dashboard',
+    () => 'http://www.' + pick(nouns) + 'chat' + pick(tlds) + '/live',
+    () => 'http://www.' + pick(nouns) + 'quiz' + pick(tlds),
+    () => 'http://www.' + pick(adj) + pick(nouns) + pick(tlds) + '/unsubscribe',
+    () => 'http://www.' + pick(nouns) + 'tracker' + pick(tlds) + '/tracking',
   ];
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
   return pick(formats)();
@@ -440,6 +462,7 @@ function currentPage() {
 
 async function navigate(url) {
   if (isLoading) stopLoading();
+  const myNavId = ++navId;
 
   currentDimension = randomDimension();
 
@@ -480,8 +503,9 @@ async function navigate(url) {
     try {
       const currentDoc = iframe.contentDocument;
       const html = await streamChat(messages, abortController.signal, (chunk) => {
-        currentDoc.write(chunk);
+        if (myNavId === navId) currentDoc.write(chunk);
       });
+      if (myNavId !== navId) return;
       currentDoc.write('</body></html>');
       currentDoc.close();
       page.html = html;
@@ -491,11 +515,13 @@ async function navigate(url) {
       lastErr = null;
       break;
     } catch (err) {
-      iframe.contentDocument.close();
-      if (err.name === 'AbortError') { setStatus('Stopped'); setLoading(false); abortController = null; return; }
+      if (myNavId !== navId) return;
+      try { iframe.contentDocument.close(); } catch {}
+      if (err.name === 'AbortError') return;
       lastErr = err;
     }
   }
+  if (myNavId !== navId) return;
   if (lastErr) {
     setStatus(`Error: ${lastErr.message}`);
     renderPage(`<div style="padding:20px;font-family:Segoe UI,sans-serif">
