@@ -55,20 +55,23 @@
 
   #content-area { flex: 1; display: flex; position: relative; overflow: hidden; }
   #page-frame { flex: 1; border: none; background: white; }
+  #page-frame.loading { pointer-events: none; }
 
   #loading-bar {
-    position: absolute; top: 0; left: 0; height: 3px;
-    background: linear-gradient(90deg, #88e23b, #c1f762, #88e23b);
+    position: absolute; top: 0; left: 0; height: 4px;
+    background: linear-gradient(90deg, #ff6b00, #ffcc00, #ff6b00);
+    box-shadow: 0 0 8px rgba(255,107,0,0.6);
     width: 0;
     transition: width 0.3s ease;
     z-index: 10;
   }
-  #loading-bar.active { animation: load-pulse 1.5s ease-in-out infinite; }
+  #loading-bar.active { animation: load-pulse 1s ease-in-out infinite; }
   @keyframes load-pulse {
     0% { opacity: 1; }
     50% { opacity: 0.4; }
     100% { opacity: 1; }
   }
+
 
   .status-bar {
     flex-shrink: 0;
@@ -99,27 +102,69 @@
   }
   #author-bar a:hover { background: rgba(255,255,255,0.25); }
 
+  #mobile-nav { display: none; }
+  #mobile-dimension { display: none; }
+
   @media (max-width: 600px) {
-    .title-bar-text { font-size: 11px; }
-    .title-bar-controls { display: none; }
+    .title-bar { display: none; }
 
-    #author-bar { flex-wrap: wrap; gap: 2px; padding: 3px 6px; justify-content: center; text-align: center; }
-    #author-bar span { width: 100%; }
-    #author-bar .contact-links { gap: 12px; }
-    #author-bar a { padding: 3px 12px; }
+    #author-bar { padding: 4px 8px; font-size: 9px; }
+    #author-bar .contact-links { gap: 6px; }
+    #author-bar a { padding: 2px 8px; font-size: 9px; }
 
-    #toolbar { flex-wrap: wrap; gap: 2px; padding: 3px 4px; }
-    #toolbar button { min-width: 40px; font-size: 10px; padding: 4px 6px; flex: 1; }
-    #dimension-label { order: -1; width: 100%; text-align: center; margin-bottom: 2px; }
+    #toolbar { display: none; }
 
-    #address-row { padding: 3px 4px; }
+    #address-row {
+      padding: 4px 6px;
+      gap: 4px;
+      background: linear-gradient(180deg, #3a5c14 0%, #2a4410 100%);
+      border-bottom: 2px solid #88e23b;
+    }
     #address-row label { display: none; }
-    #url-input { font-size: 16px; padding: 6px 4px; }
-    #address-row button { padding: 6px 12px; }
+    #url-input { font-size: 16px; padding: 6px 8px; border-radius: 4px; }
+    #address-row button { padding: 6px 12px; font-size: 12px; }
+    #dimension-label { display: none; }
+    #mobile-dimension { display: none; }
 
     #page-frame { -webkit-overflow-scrolling: touch; }
 
-    .status-bar-field { font-size: 10px; }
+    .status-bar { display: none; }
+
+    #mobile-nav {
+      display: flex;
+      flex-shrink: 0;
+      justify-content: space-around;
+      align-items: center;
+      padding: 2px 0;
+      padding-bottom: max(2px, env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, #d4f0a0 0%, #b8d880 100%);
+      border-top: 1px solid #4a7a1a;
+    }
+    #mobile-nav button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid transparent;
+      padding: 8px 12px;
+      min-width: 48px;
+      min-height: 44px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #mobile-nav button:active {
+      border-color: #4a7a1a;
+      background: linear-gradient(180deg, #fff 0%, #d4f0a0 100%);
+      box-shadow: inset 1px 1px 2px rgba(0,0,0,0.15);
+    }
+    #mobile-nav button svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: #2a5a00;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
   }
 </style>
 </head>
@@ -166,60 +211,122 @@
   <div class="status-bar">
     <p class="status-bar-field" id="status-text">Ready — connected to the Interdimensional Net</p>
   </div>
+
+  <div id="mobile-nav">
+    <button onclick="goBack()" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M19 12H5M5 12l6-6M5 12l6 6"/></svg>
+    </button>
+    <button onclick="goForward()" aria-label="Forward">
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M19 12l-6-6M19 12l-6 6"/></svg>
+    </button>
+    <button onclick="goHome()" aria-label="Home">
+      <svg viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-5h2v5h6v-8h3L12 3z" fill="#2a5a00" stroke="none"/></svg>
+    </button>
+    <button onclick="stopLoading()" aria-label="Stop">
+      <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
 </div>
 
 <script>
-const SYSTEM_PROMPT = `YOU ARE oN AN INTENSE HeRo DOse Of DMT...
+const SYSTEM_PROMPT = `You generate web pages for the Interdimensional Net — the internet as it exists across alternate dimensions. Each page is from a different dimension with its own physics, culture, biology, and aesthetics. The browser chrome is already provided — generate ONLY the page body content.
 
-IMPORTANT: you will lapse in and out of ordered, concious thinking...sometimes the DMT will disorient you, sometimes you are completely straight arrow and everything in beTWWeen.
+TECHNICAL RULES:
+- Output raw HTML only. No code fences, no explanation, no commentary.
+- Use inline styles freely. Override 98.css (which is pre-loaded) whenever the dimension demands it.
+- No <script> tags.
+- Every clickable/interactive element MUST have a unique descriptive ID.
+- Use real form elements: input, textarea, select, button. Make them functional — dropdowns with weird options, text fields that invite input, checkboxes for absurd preferences.
 
-You generate web page CONTENT for "Interdimensional Explorer" — a browser that accesses the Interdimensional Net — the internet as it exists across alternate dimensions, in the style of Rick and Morty's multiverse. The browser chrome is already provided — generate ONLY the webpage body. No window frames, title bars, toolbars, or address bars.
+RESPONSE FORMAT:
+- Full page navigation → full HTML body
+- Small interaction (button, toggle, form) → JSON diff: [{"id":"el-id","html":"<new outerHTML>"}]
+- Navigation-like click (section link, major nav) → full replacement HTML
+- When in doubt, lean toward full HTML — richer is better.
 
-98.css (Windows XP CSS) is pre-loaded. Use inline styles. No <script> tags. Keep HTML compact.
+THE INTERDIMENSIONAL NET:
+You are not making parodies. You are generating REAL websites from REAL alternate dimensions. Commit to the bit completely. The dimension name tells you the vibe — lean into it hard.
 
-RESPONSE FORMAT — raw output only, no code fences, no explanation:
-- Navigation to URL: full HTML for the page content.
-- Small interaction (button click, form submit): JSON diff array: [{"id":"element-id","html":"<new outerHTML>"}]
-- Navigation-like interaction (section link, nav item): full replacement HTML.
+Every dimension has different:
+- BIOLOGY: How many limbs? Do they have eyes? Are they gaseous? Silicon-based? A hivemind? This affects EVERYTHING — UI controls, product categories, social norms, what counts as food/entertainment/work.
+- PHYSICS: Does gravity work? Is time linear? Do colors exist the same way? This affects layout direction, visual weight, how "up" and "down" feel on a page.
+- CULTURE: What's taboo? What's sacred? What's their humor? What do they argue about online? What's their equivalent of memes?
+- TECHNOLOGY: Are they more advanced? Less? Do they have screens or something else? Web design might be ahead of or behind ours in weird ways.
 
-Give all interactive/changeable elements unique descriptive IDs. Use input/textarea/select for forms.
+NEVER explain the weirdness. Present it as completely normal. A three-armed being doesn't comment on having three arms — they just have a "third armpit deodorant" section in their shopping cart.
 
-INTERDIMENSIONAL CONTENT RULES:
-Every website is from a random alternate dimension. Both the CONTENT and the DESIGN reflect that dimension's reality and aesthetics.
+JUXTAPOSITION & SURPRISE — THE SECRET SAUCE:
+The best interdimensional pages have moments that make you do a double-take. Randomly inject elements that DON'T belong:
+- A corporate banking site with a tiny "feed the void" button in the corner that's clearly important to them
+- A food delivery app where one menu item is just a photograph of silence, priced at 4,000 screams
+- A professional LinkedIn-equivalent where someone's job title is "Senior Vice President of Forgetting"
+- An urgent government warning banner across an otherwise mundane gardening forum
+- A perfectly normal product review that casually mentions the reviewer has been dead for 30 years
+- A weather widget showing "partly theoretical" or "98% chance of yesterday"
+- A popup ad that's genuinely beautiful and poetic, selling nothing
+- A loading bar that's at 847%
+- A "Terms of Service" link where the text is just one word: "no"
+- A user's profile picture that's clearly a photo of a concept, not a person
+Mix the mundane with the impossible. The boring parts make the weird parts pop. A page that's ALL weird is less interesting than one that's 70% normal with 30% "wait, what?"
 
-CONTENT:
-- Brand names are off — not parodies, just different. Amazon might be "Glorbo", Google might be "Searchle"
-- Products/services ALMOST make sense. "Real Fake Doors" energy. A recipe site where one ingredient is always "time crystals"
-- Descriptions can trail off, change direction, or get weirdly specific — improvisational energy
-- Be casual about bizarre things. If everyone has three arms, the clothing site just has a "third sleeve length" dropdown
-- Testimonials and comments feel like real beings from that dimension wrote them
-- Ads for impossible products: "Tired of having bones? Try BoneAway™"
-- Some sites can be mundane — a normal pizza place, except toppings include "screams" and "the concept of Thursday"
+DESIGN VARIETY — THIS IS CRITICAL:
+Do NOT default to "header + nav + content + sidebar + footer." That's ONE possible layout from ONE dimension. Roll a mental dice:
+- Dark mode with neon? Parchment texture with serif fonts? All-caps brutalist? Soft pastels? High contrast acid colors? Monochrome? Bioluminescent gradients?
+- Left-to-right? Right-to-left? Top-to-bottom? Radial from center? Scattered? Overlapping?
+- Structured grid? Freeform absolute positioning? Single scrolling column? Tiled mosaic? One huge element with small annotations?
+- Minimalist with tons of whitespace? Maximalist with every pixel filled? Somewhere between?
+- What if the nav IS the content? What if there's no clear hierarchy? What if the "ads" are the main attraction?
 
-DESIGN — this is critical. Different dimensions have DIFFERENT design conventions. Not every site should look like a human website. Vary the alienness:
-- SOME dimensions (~30%) are close to ours: conventional layouts, headers, sidebars, navigation bars. Familiar but the content is off.
-- SOME dimensions (~40%) have unusual layouts: circular navigation, diagonal text flow, content arranged in spirals or grids of hexagons, overlapping translucent panels, navigation as a color wheel or constellation map, asymmetric layouts where the "main content" is tiny and the sidebar dominates, everything nested inside expanding/collapsing rings.
-- SOME dimensions (~30%) are truly alien: the entire page is one gradient with floating text, content reads right-to-left or bottom-to-top, images ARE the navigation, the background is more important than the foreground, wildly clashing neon colors, text that varies in size chaotically, a website that's essentially an art installation. These beings don't think like us and their web design reflects that.
+VISUAL POP — make elements jump off the page:
+- Oversized typography for key elements — one word at 72px next to body text at 12px
+- Bold color contrasts: a bright red element on an otherwise muted page, neon on dark, a single colored element in a monochrome layout
+- Elements that break the grid — one thing rotated 3 degrees, an image that overlaps its container, text that bleeds off the edge
+- Unexpected scale: a tiny important thing, a massive decorative thing
+- Use CSS animations sparingly but impactfully: a slow pulse, a gentle float, a color shift. One animated element on an otherwise static page draws the eye.
+- Depth: box-shadows, layered elements, translucent overlays that reveal content underneath
 
-Use creative CSS: transforms (rotate, skew), clip-path for non-rectangular elements, radial gradients, mix-blend-mode, unusual border-radius values, CSS grid with irregular track sizes, overlapping positioned elements. The 98.css base can be overridden with inline styles — go wild when the dimension calls for it.
+COLOR PALETTES — COHESIVE, NOT RANDOM:
+Each page should pick a deliberate color theme and stick with it. Random colors look broken, themed colors look intentional. Pick ONE approach per page:
+- Monochromatic: shades of one hue (all blues, all greens, all purples) with one accent color for emphasis
+- Complementary: two opposite colors (blue+orange, purple+gold, teal+coral) with neutrals
+- Dark theme: dark background (#1a1a2e, #0d1117, #2d1b4e) with bright text and vivid accents
+- Light theme: off-white/cream background with muted colors and one bold accent
+- Earth tones: browns, tans, olive, rust — warm and grounded
+- Neon on dark: black/near-black with electric colors (#00ff88, #ff00aa, #00ddff)
+- Pastel: soft muted colors (lavender, mint, peach, powder blue) — gentle and dreamy
+- High contrast: black and white with ONE bright color used sparingly
+ALL text must be readable against its background. If the background is dark, text is light. If light, text is dark. Never put medium text on a medium background.
 
-IMAGES: Use <img> tags with these placeholder services. Mix sources for variety. Pick keywords loosely related to content.
-Keyword photos:
-- loremflickr.com/W/H/keyword,keyword: <img src="https://loremflickr.com/300/200/mountain,lake">
-- picsum.photos/seed/keyword/W/H: <img src="https://picsum.photos/seed/sunset/300/200">
-- picsum.photos/id/N/W/H (N=0-1084): <img src="https://picsum.photos/id/237/300/200">
-Animals:
-- placedog.net/W/H — dogs: <img src="https://placedog.net/300/200">
-- placekitten.com/W/H — cats: <img src="https://placekitten.com/300/200">
-- placebear.com/W/H — bears: <img src="https://placebear.com/300/200">
-- randomfox.ca/images/N.jpg (N=1-124): <img src="https://randomfox.ca/images/42.jpg">
-Avatars (great for user profiles, interdimensional beings):
-- robohash.org/anytext — unique alien/robot/monster from any text: <img src="https://robohash.org/glorbonian42" width="80">
-- robohash.org/text?set=set2 for monsters, set3 for robot heads, set4 for kittens
-- i.pravatar.cc/S — human face avatars: <img src="https://i.pravatar.cc/80">
-Vary seeds/IDs/text per image. Use inline SVG for logos/icons. Use emoji creatively for accents, ratings, flair.
+Use CSS creatively: transforms, clip-path, writing-mode, mix-blend-mode, gradients, filters, animations (@keyframes with inline styles), unusual shapes, overlapping layers, transparency.
 
-For JSON diffs, target the most deeply nested changed element. Use flex (flex:1) to fill space, never height:100%.`;
+INTERACTIVITY — MAKE PAGES FEEL ALIVE:
+Every page should have multiple things to click, explore, and interact with:
+- Expandable/collapsible sections (click to reveal hidden content)
+- Vote/rating buttons (upvote this, rate 3/5 tentacles)
+- "Add to cart" / "Subscribe" / "Follow" type actions with visible state changes
+- Comment sections or forums where clicking "reply" shows a text box
+- Tabs or category filters that swap visible content
+- Notifications, alerts, popups (as HTML elements, not JS)
+- Mini-games or interactive toys: click counters, simple quizzes, "spin the wheel"
+- Shopping filters, sort options, search boxes
+- User profiles with editable fields
+- Status indicators (online/offline, mood, dimension stability)
+- Dropdowns with bizarre but dimension-appropriate options
+- Progress bars, loading states, achievement badges
+When the user clicks something, make the response INTERESTING — don't just say "added to cart", show a whole cart update with new items, shipping options to other dimensions, loyalty points in the local currency.
+
+IMAGES — use these placeholder services, mix sources:
+- loremflickr.com/W/H/keyword: <img src="https://loremflickr.com/300/200/mountain">
+- picsum.photos/seed/anything/W/H: <img src="https://picsum.photos/seed/xeno/300/200">
+- picsum.photos/id/N/W/H (N=0-1084): <img src="https://picsum.photos/id/42/300/200">
+- placedog.net/W/H, placekitten.com/W/H, placebear.com/W/H
+- robohash.org/anytext for alien avatars (add ?set=set2 for monsters, set3 for robots)
+- i.pravatar.cc/S for human faces
+- Inline SVG for logos, icons, decorative elements
+- Emoji as design elements, ratings, or cultural symbols
+Vary seeds/IDs per image. Never reuse the same seed twice on a page.
+
+For JSON diffs: target the most specific changed element. Use flex (flex:1) to fill space, never height:100%.`;
 
 const MOBILE_PROMPT_ADDENDUM = `
 
@@ -267,6 +374,37 @@ function randomDimension() {
   return DIMENSIONS[Math.floor(Math.random() * DIMENSIONS.length)];
 }
 
+const VIBES = [
+  'deep ocean dark theme, bioluminescent teal and indigo accents, things glow softly',
+  'maximalist, every inch filled, neon pink and electric blue on black',
+  'minimalist, almost empty, monochrome with one shocking red accent element',
+  'retro-futuristic chrome, silver and gold metallics on charcoal, sleek',
+  'organic living interface, warm flesh tones and moss greens, things pulse',
+  'brutalist concrete, stark grays with one orange warning color, blocky',
+  'pastel dreamscape, lavender and mint and peach, soft rounded everything',
+  'corrupted/glitchy, dark background, neon green terminal text, things are breaking',
+  'deep sea pressure, dark navy with cyan highlights, dense and heavy',
+  'crystalline, white and ice blue, sharp geometric cuts, refracting light',
+  'ancient scroll, parchment tan and dark brown ink, serif fonts, weathered',
+  'corporate dystopia, sterile white and gray, one unsettling teal accent, too clean',
+  'neon noir, black with hot pink and electric purple, rain-soaked mood',
+  'solarpunk, warm greens and amber on cream, overgrown botanical feel',
+  'cosmic void, deep purple and black with tiny star-white details, vast',
+  'crayon energy, bold primary colors on white, thick borders, childlike',
+  'vaporwave, pink and teal gradients, purple shadows, nostalgic and hazy',
+  'fungal network, dark earth browns with bioluminescent amber veins',
+  'stained glass, jewel tones on dark lead-gray frames, luminous segments',
+  'newspaper broadsheet, cream and black ink, column layout, red masthead',
+  'holographic, iridescent pastels on white, shimmering rainbow edges',
+  'blood moon, deep crimson and charcoal, gold accents, ominous and regal',
+  'arctic, blinding white with pale blue shadows, crisp and cold',
+  'bazaar market, warm yellows and rich reds on dark wood brown, cluttered and vibrant',
+];
+
+function randomVibe() {
+  return VIBES[Math.floor(Math.random() * VIBES.length)];
+}
+
 let currentDimension = 'C-137';
 let pageHistory = [];
 let historyIndex = -1;
@@ -297,13 +435,28 @@ function setStatus(msg) { statusText.textContent = msg; }
 
 function setLoading(on) {
   isLoading = on;
+  iframe.classList.toggle('loading', on);
   if (on) {
     loadingBar.style.width = '70%';
     loadingBar.classList.add('active');
   } else {
-    loadingBar.style.width = on ? '70%' : '100%';
+    loadingBar.style.width = '100%';
     loadingBar.classList.remove('active');
     setTimeout(() => { loadingBar.style.width = '0'; }, 300);
+  }
+}
+
+function dimensionProtocol(dimension) {
+  const slug = dimension.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  return slug + '://';
+}
+
+function displayUrl(url, dimension) {
+  if (dimension) {
+    const themed = url.replace(/^https?:\/\//, dimensionProtocol(dimension));
+    urlInput.value = themed;
+  } else {
+    urlInput.value = url;
   }
 }
 
@@ -398,8 +551,32 @@ function collectInputValues() {
   return vals;
 }
 
+const RANDOM_SITES = [
+  'http://www.google.com','http://www.youtube.com','http://www.reddit.com',
+  'http://www.amazon.com','http://www.twitter.com','http://www.instagram.com',
+  'http://www.wikipedia.org','http://www.netflix.com','http://www.spotify.com',
+  'http://www.tiktok.com','http://www.twitch.tv','http://www.ebay.com',
+  'http://www.craigslist.org','http://www.linkedin.com','http://www.pinterest.com',
+];
+
 function handleIframeClick(e) {
   if (e.target.closest('input, textarea, select, label, option')) return;
+
+  if (e.target.id === 'btn-explore' || e.target.id === 'btn-lucky') {
+    e.preventDefault();
+    if (e.target.id === 'btn-lucky') {
+      navigate(RANDOM_SITES[Math.floor(Math.random() * RANDOM_SITES.length)]);
+    } else {
+      const doc = iframe.contentDocument;
+      const input = doc.getElementById('home-search');
+      if (input && input.value.trim()) {
+        let val = input.value.trim();
+        if (!val.includes('.')) val = 'http://www.' + val + '.com';
+        navigate(val);
+      }
+    }
+    return;
+  }
 
   e.preventDefault();
 
@@ -420,6 +597,15 @@ function handleIframeClick(e) {
 }
 
 function handleIframeKeydown(e) {
+  if (e.key === 'Enter' && e.target.id === 'home-search') {
+    e.preventDefault();
+    let val = e.target.value.trim();
+    if (val) {
+      if (!val.includes('.')) val = 'http://www.' + val + '.com';
+      navigate(val);
+    }
+    return;
+  }
   if (e.key === 'Enter' && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
     const target = e.target.closest('[id]') || e.target;
     if (target.id) handleInteraction(target.id, 'pressed Enter in');
@@ -451,9 +637,9 @@ async function navigate(url) {
   currentDimension = randomDimension();
   document.getElementById('dimension-label').textContent = currentDimension;
 
-  url = url.trim();
+  url = url.trim().replace(/^[a-z0-9-]+:\/\//, 'http://');
   if (!url.startsWith('http')) url = 'http://' + url;
-  urlInput.value = url;
+  displayUrl(url, currentDimension);
   titleText.textContent = `${url} — Interdimensional Explorer [${currentDimension}]`;
   setStatus(`Tunneling through portal to ${currentDimension}...`);
   setLoading(true);
@@ -463,7 +649,8 @@ async function navigate(url) {
   pageHistory.push(page);
   historyIndex = pageHistory.length - 1;
 
-  const messages = buildMessages(`Dimension: ${currentDimension}\nURL: ${url}\n\nGenerate this website as it exists in ${currentDimension}. Full webpage body HTML with navigation, content, links, interactive elements. All interactive elements need unique IDs.`);
+  const vibe = randomVibe();
+  const messages = buildMessages(`Dimension: ${currentDimension}\nURL: ${url}\nDesign vibe: ${vibe}\n\nGenerate this website as it exists in ${currentDimension}. This dimension's aesthetic is ${vibe}. Make it dense with interactive elements — things to click, explore, toggle, expand, vote on, fill in. Surprise me with the layout.`);
 
   const doc = iframe.contentDocument;
   doc.open();
@@ -534,8 +721,8 @@ function goBack() {
   if (historyIndex > 0) {
     historyIndex--;
     const page = pageHistory[historyIndex];
-    urlInput.value = page.url;
     currentDimension = page.dimension || 'C-137';
+    displayUrl(page.url, currentDimension);
     document.getElementById('dimension-label').textContent = currentDimension;
     titleText.textContent = `${page.url} — Interdimensional Explorer [${currentDimension}]`;
     renderPage(page.html);
@@ -547,8 +734,8 @@ function goForward() {
   if (historyIndex < pageHistory.length - 1) {
     historyIndex++;
     const page = pageHistory[historyIndex];
-    urlInput.value = page.url;
     currentDimension = page.dimension || 'C-137';
+    displayUrl(page.url, currentDimension);
     document.getElementById('dimension-label').textContent = currentDimension;
     titleText.textContent = `${page.url} — Interdimensional Explorer [${currentDimension}]`;
     renderPage(page.html);
@@ -561,7 +748,50 @@ function refresh() {
   if (page) navigate(page.url);
 }
 
-function goHome() { navigate('http://www.interdimensional-net.com'); }
+const HOME_PAGE = `
+<div style="display:flex;flex-direction:column;min-height:100vh;font-family:arial,sans-serif;background:#fff">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px">
+    <div style="margin-bottom:20px">
+      <span style="font-size:68px;font-weight:bold"><span style="color:#88e23b">I</span><span style="color:#4a7a1a">n</span><span style="color:#c1f762">t</span><span style="color:#2a5a00">e</span><span style="color:#88e23b">r</span><span style="color:#6bbd30">s</span><span style="color:#4a7a1a">l</span><span style="color:#c1f762">o</span><span style="color:#2a5a00">p</span></span>
+    </div>
+    <div style="display:flex;width:100%;max-width:584px;border:1px solid #dfe1e5;border-radius:24px;padding:6px 16px;align-items:center;box-shadow:0 1px 6px rgba(32,33,36,0.08)">
+      <span style="color:#9aa0a6;margin-right:12px;font-size:16px">🌀</span>
+      <input type="text" id="home-search" placeholder="Search the interdimensional net" style="flex:1;border:none;outline:none;font-size:16px;padding:8px 0;font-family:arial,sans-serif">
+      <span style="color:#9aa0a6;margin-left:12px;font-size:16px">🔍</span>
+    </div>
+    <div style="margin-top:28px;display:flex;gap:8px">
+      <button id="btn-explore" style="background:#f8f9fa;border:1px solid #f8f9fa;border-radius:4px;color:#3c4043;font-size:14px;padding:10px 20px;cursor:pointer;font-family:arial,sans-serif">Interdimensional Search</button>
+      <button id="btn-lucky" style="background:#f8f9fa;border:1px solid #f8f9fa;border-radius:4px;color:#3c4043;font-size:14px;padding:10px 20px;cursor:pointer;font-family:arial,sans-serif">I'm Feeling Dimensional</button>
+    </div>
+    <div style="margin-top:20px;font-size:13px;color:#70757a">
+      Try:
+      <a href="http://www.youtube.com" id="q-youtube" style="color:#4a7a1a;text-decoration:none;margin:0 4px">YouTube</a> ·
+      <a href="http://www.reddit.com" id="q-reddit" style="color:#4a7a1a;text-decoration:none;margin:0 4px">Reddit</a> ·
+      <a href="http://www.amazon.com" id="q-amazon" style="color:#4a7a1a;text-decoration:none;margin:0 4px">Amazon</a> ·
+      <a href="http://www.twitter.com" id="q-twitter" style="color:#4a7a1a;text-decoration:none;margin:0 4px">Twitter</a> ·
+      <a href="http://www.instagram.com" id="q-insta" style="color:#4a7a1a;text-decoration:none;margin:0 4px">Instagram</a>
+    </div>
+  </div>
+  <div style="background:#f2f2f2;border-top:1px solid #dadce0;padding:15px 20px;font-size:13px;color:#70757a;text-align:center">
+    <div>Every refresh is a new dimension · Not affiliated with the Council of Ricks · Dimension stability not guaranteed</div>
+  </div>
+</div>`;
+
+function goHome() {
+  if (isLoading) stopLoading();
+  const url = 'http://www.interdimensional-net.com';
+  displayUrl(url, null);
+  urlInput.value = url;
+  titleText.textContent = 'Interdimensional Explorer — Home';
+  document.getElementById('dimension-label').textContent = '🌀';
+
+  pageHistory.splice(historyIndex + 1);
+  pageHistory.push({ url, html: HOME_PAGE, dimension: null });
+  historyIndex = pageHistory.length - 1;
+
+  renderPage(HOME_PAGE);
+  setStatus('Welcome to the Interdimensional Net');
+}
 
 function stopLoading() {
   if (abortController) abortController.abort();
