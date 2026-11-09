@@ -19,7 +19,7 @@ const PROVIDERS = {
     hostname: 'api.deepseek.com',
     path: '/chat/completions',
     key: env.DEEPSEEK_API_KEY,
-    model: 'deepseek-v4-flash',
+    model: 'deepseek-flash',
     extra: { thinking: { type: 'disabled' } },
   },
   cerebras: {
